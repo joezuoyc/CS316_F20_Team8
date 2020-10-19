@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+  <article class="media content-section">
+    <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + task.author.image_file) }}">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="#">{{ task.author.username }}</a>
+        <small class="text-muted">{{task.date_posted.strftime('%m-%d-%Y') }}</small>
+      </div>
+      <h2 class = "article-title">{{ task.title }}</h2>
+      <p class="article-content">{{ task.content }}</p>
+    </div>
+  </article>
+
+{% endblock content  %}
