@@ -17,7 +17,7 @@
         </article>
 	{% endfor  %}	
 
-  {% for task in tasks %}
+  {% for task in tasks.items %}
         <h5>Task</h5>
         <article class="media content-section">
           <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + task.author.image_file) }}">
@@ -44,4 +44,15 @@
     {% endif %}
   {% endfor %}
 
+  {% for page_num in tasks.iter_pages(left_edge = 1, right_edge = 1, left_current = 1, right_current = 2) %}
+    {% if page_num %}
+      {% if tasks.page == page_num %}>
+        <a class = "btn btn-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% else %}
+        <a class = "btn btn-outline-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% endif %}
+    {% else %}
+      ...
+    {% endif %}
+  {% endfor %}
 {% endblock content  %}
