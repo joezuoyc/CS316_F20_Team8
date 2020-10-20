@@ -165,10 +165,10 @@ def update_announcement(announcement_id):
 	return render_template('new_announcement.html', title= 'Update Annoucnement' , 
 								form = form, legend = 'Update Annoucnement')
 
-@app.route("/announcement/<int:announcement_id>/delete", methods=['POST'])
+@app.route("/announcements/<int:announcement_id>/delete", methods=['POST'])
 @login_required
 def delete_announcement(announcement_id):
-    announcement = Annoucnement.query.get_or_404(announcement_id)
+    announcement = Announcement.query.get_or_404(announcement_id)
     if announcement.author != current_user:
         abort(403)
     db.session.delete(announcement)
