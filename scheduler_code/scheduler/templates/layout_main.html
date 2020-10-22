@@ -57,7 +57,12 @@
               {% endfor %}
             {% endif %}
           {% endwith %}
+
+          <h3>You have the following tasks</h3>
+
           {% block content %}{% endblock %}
+
+
         </div>
         <div class="col-md-4">
           <div class="content-section">
@@ -72,6 +77,15 @@
             </p>
           </div>
         </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8">
+          <h3>You have the following tasks</h3>
+          {% block content2 %}{% endblock %}
+        </div>       
+
+
       </div>
     </main>
 

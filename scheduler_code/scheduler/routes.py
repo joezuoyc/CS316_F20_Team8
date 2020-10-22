@@ -41,8 +41,9 @@ def home():
 @app.route('/main') # main user page
 def main():
 	page = request.args.get('page', 1, type = int)
-	announcements = Announcement.query.paginate(per_page = 5)
-	return render_template('main.html', announcements =announcements, title = 'Main')
+	announcements = Announcement.query.limit(3)
+	tasks = Task.query.all()
+	return render_template('main.html', announcements =announcements, tasks = tasks, title = 'Main')
 
 
 @app.route('/about')
@@ -124,6 +125,12 @@ def account():
 
 
 
+@app.route("/all_announcements", methods=['GET', 'POST'])
+def all_announcements():
+	page = request.args.get('page', 1, type = int)
+	announcements = Announcement.query.paginate(per_page = 5)
+	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
+
 
 @app.route("/announcements/new", methods=['GET', 'POST'])
 @login_required
@@ -188,6 +195,13 @@ def new_poll():
 	return render_template('new_poll.html', title='New poll', form = form, legend = 'New Poll')
 
 
+@app.route("/all_tasks", methods=['GET', 'POST'])
+def all_tasks():
+	page = request.args.get('page', 1, type = int)
+	tasks = Task.query.paginate(per_page = 5)
+	return render_template('all_tasks.html', tasks =tasks, title = 'All tasks')
+
+
 @app.route("/tasks/new", methods=['GET', 'POST'])
 @login_required
 def new_task():
@@ -206,5 +220,35 @@ def task(task_id):
 	task = Task.query.get_or_404(task_id)
 	return render_template('task.html', title= task.title, task = task)
 
-#db.create_all()
-#db.session.commit()
+
+# Update announcement content
+@app.route("/tasks/<task_id>/update", methods=['GET', 'POST'])
+@login_required
+
+def update_task(task_id):
+	task = task.query.get_or_404(task_id)
+	if task.author != current_user:
+		abort(403)
+	form = TaskForm()
+	if form.validate_on_submit():
+		task.title = form.title.data
+		task.content = form.content.data
+		db.session.commit()
+		flash('Your task content has been updated!', 'success')
+		return redirect(url_for('task',task_id = task.id))
+	elif request.method == 'GET':
+		form.title.data = task.title
+		form.content.data = task.content
+	return render_template('Task.html', title= 'Update Task' , 
+								form = form, legend = 'Update Task')
+
+@app.route("/tasks/<int:task_id>/delete", methods=['POST'])
+@login_required
+def delete_task(task_id):
+    task = task.query.get_or_404(task_id)
+    if task.author != current_user:
+        abort(403)
+    db.session.delete(task)
+    db.session.commit()
+    flash('Your task has been deleted!', 'success')
+    return redirect(url_for('main'))

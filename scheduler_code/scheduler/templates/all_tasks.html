@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+	{% for task in tasks.items %}
+        <h6>Task</h6>
+        <article class="media content-section">
+          <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + task.author.image_file) }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ task.author.username }}</a>
+              <small class="text-muted">{{task.date_posted.strftime('%m-%d-%Y') }}</small>
+            </div>
+            <h2><a class="article-title" href="{{url_for('task', task_id = task.id)}}">{{ task.title }}</a></h2>
+            <p class="article-content">{{ task.content }}</p>
+          </div>
+        </article>
+	{% endfor  %}	
+
+
+  {% for page_num in tasks.iter_pages(left_edge = 1, right_edge = 1, left_current = 1, right_current = 2) %}
+    {% if page_num %}
+      {% if tasks.page == page_num %}>
+        <a class = "btn btn-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% else %}
+        <a class = "btn btn-outline-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% endif %}
+    {% else %}
+      ...
+    {% endif %}
+  {% endfor %}
+
+
+{% endblock content  %}
