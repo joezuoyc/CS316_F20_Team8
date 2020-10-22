@@ -10,3 +10,8 @@ More specifically, we will first generate at least 200 tuples of user informatio
 
 # Data Cleanup
 Since we are generating data on our own, we will make sure that our data fits our schema and constraints. Therefore, we believe that data cleanup will not be much needed.
+
+# Demo Video
+
+Link to the demo video of our website:
+https://vimeo.com/470027547
