@@ -18,10 +18,15 @@
 
 {% endblock content  %}
 
+<<<<<<< HEAD
 {% block content2 %}
 
 
     {% for announcement in announcements %}
+=======
+  {% for task in tasks.items %}
+        <h5>Task</h5>
+>>>>>>> 898f916d19ab850c82841bab0224ad4ffc4c18db
         <article class="media content-section">
           <div class="media-body">
             <div class="article-metadata">
@@ -34,4 +39,31 @@
         </article>
   {% endfor  %} 
 
+<<<<<<< HEAD
 {% endblock content2  %}
+=======
+  {% for page_num in announcements.iter_pages(left_edge = 1, right_edge = 1, left_current = 1, right_current = 2) %}
+    {% if page_num %}
+      {% if announcements.page == page_num %}>
+        <a class = "btn btn-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% else %}
+        <a class = "btn btn-outline-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% endif %}
+    {% else %}
+      ...
+    {% endif %}
+  {% endfor %}
+
+  {% for page_num in tasks.iter_pages(left_edge = 1, right_edge = 1, left_current = 1, right_current = 2) %}
+    {% if page_num %}
+      {% if tasks.page == page_num %}>
+        <a class = "btn btn-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% else %}
+        <a class = "btn btn-outline-info mb-4" href = "{{ url_for('main', page = page_num)}} ">{{page_num}} </a>
+      {% endif %}
+    {% else %}
+      ...
+    {% endif %}
+  {% endfor %}
+{% endblock content  %}
+>>>>>>> 898f916d19ab850c82841bab0224ad4ffc4c18db
