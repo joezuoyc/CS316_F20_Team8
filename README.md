@@ -1,8 +1,4 @@
 # CS316_F20_Team8
-<<<<<<< HEAD
-
-test
-=======
 # Data Procurement
 Our project is an online scheduler for task coordination, and our database includes user info, task, announcement, et cetera. This information is highly random, and we plan to generate the data on our own.
 
@@ -14,4 +10,9 @@ More specifically, we will first generate at least 200 tuples of user informatio
 
 # Data Cleanup
 Since we are generating data on our own, we will make sure that our data fits our schema and constraints. Therefore, we believe that data cleanup will not be much needed.
->>>>>>> origin/br1
+
+
+# Demo Video
+
+Link to the demo video of our website:
+https://vimeo.com/470027547

@@ -41,9 +41,15 @@ def home():
 @app.route('/main') # main user page
 def main():
 	page = request.args.get('page', 1, type = int)
+<<<<<<< HEAD
 	announcements = Announcement.query.limit(3)
 	tasks = Task.query.all()
 	return render_template('main.html', announcements =announcements, tasks = tasks, title = 'Main')
+=======
+	announcements = Announcement.query.paginate(per_page = 5)
+	tasks = Task.query.paginate(per_page = 5)
+	return render_template('main.html', announcements =announcements, tasks= tasks, title = 'Main')
+>>>>>>> 898f916d19ab850c82841bab0224ad4ffc4c18db
 
 
 @app.route('/about')
@@ -164,7 +170,7 @@ def update_announcement(announcement_id):
 		announcement.content = form.content.data
 		db.session.commit()
 		flash('Your post has been updated!', 'success')
-		return redirect(url_for('announcement',announcement_id = announcement.id))
+		return redirect(url_for('announcement', announcement_id = announcement.id))
 	elif request.method == 'GET':
 		form.title.data = announcement.title
 		form.content.data = announcement.content
@@ -220,6 +226,7 @@ def task(task_id):
 	task = Task.query.get_or_404(task_id)
 	return render_template('task.html', title= task.title, task = task)
 
+<<<<<<< HEAD
 
 # Update announcement content
 @app.route("/tasks/<task_id>/update", methods=['GET', 'POST'])
@@ -227,6 +234,12 @@ def task(task_id):
 
 def update_task(task_id):
 	task = task.query.get_or_404(task_id)
+=======
+@app.route("/tasks/<task_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_task(task_id):
+	task = Task.query.get_or_404(task_id)
+>>>>>>> 898f916d19ab850c82841bab0224ad4ffc4c18db
 	if task.author != current_user:
 		abort(403)
 	form = TaskForm()
@@ -234,11 +247,16 @@ def update_task(task_id):
 		task.title = form.title.data
 		task.content = form.content.data
 		db.session.commit()
+<<<<<<< HEAD
 		flash('Your task content has been updated!', 'success')
+=======
+		flash('Your task has been updated!', 'success')
+>>>>>>> 898f916d19ab850c82841bab0224ad4ffc4c18db
 		return redirect(url_for('task',task_id = task.id))
 	elif request.method == 'GET':
 		form.title.data = task.title
 		form.content.data = task.content
+<<<<<<< HEAD
 	return render_template('Task.html', title= 'Update Task' , 
 								form = form, legend = 'Update Task')
 
@@ -246,9 +264,25 @@ def update_task(task_id):
 @login_required
 def delete_task(task_id):
     task = task.query.get_or_404(task_id)
+=======
+	return render_template('new_task.html', title= 'Update Task' , 
+								form = form, legend = 'Update Task')
+
+@app.route("/task/<int:task_id>/delete", methods=['POST'])
+@login_required
+def delete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+>>>>>>> 898f916d19ab850c82841bab0224ad4ffc4c18db
     if task.author != current_user:
         abort(403)
     db.session.delete(task)
     db.session.commit()
     flash('Your task has been deleted!', 'success')
     return redirect(url_for('main'))
+<<<<<<< HEAD
+=======
+
+
+#db.create_all()
+#db.session.commit()
+>>>>>>> 898f916d19ab850c82841bab0224ad4ffc4c18db
