@@ -129,6 +129,7 @@ def new_announcement():
 		ann_id = db.session.query(Announcement).order_by(Announcement.id.desc()).first().id
 		#all_audience = form.audience.data.split(",")
 		all_audience = re.findall(r'\w+',form.audience.data )
+		all_audience = set(all_audience + [current_user.username])
 		for audi in all_audience:
 			announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = audi)
 			db.session.add(announcement_rec)
