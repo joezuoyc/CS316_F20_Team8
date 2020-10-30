@@ -29,9 +29,14 @@ class Announcement(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
+    audience = db.Column(db.String(300), nullable = False)
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Announcement('{self.title}', '{self.date_posted}')"
+
+class Announcement_recipent(db.Model):
+    announcement_id = db.Column(db.Integer, db.ForeignKey('announcement.id'), nullable = False, primary_key = True)
+    recipient = db.Column(db.String(120),nullable = False,primary_key = True)
+
 
 
 class Poll(db.Model):
@@ -41,7 +46,7 @@ class Poll(db.Model):
     content = db.Column(db.Text, nullable=False)
     initiator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Poll('{self.title}', '{self.date_posted}')"
 
 
 
@@ -54,7 +59,7 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Task('{self.title}', '{self.date_posted}')"
 
 def init_db():
     db.create_all()
