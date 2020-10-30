@@ -67,6 +67,7 @@ class AnnouncementForm(FlaskForm):
 	title = StringField('Title', validators = [DataRequired()])
 	content = TextAreaField('Content', validators = [DataRequired()])
 	submit = SubmitField('Post')
+	audience = StringField('Who are you sending to?', validators = [DataRequired()])
 
 class TaskForm(FlaskForm):
 	title = StringField('Title', validators = [DataRequired()])

@@ -2,35 +2,12 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from scheduler import app, db, bcrypt
 from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm
-from scheduler.models import User, Announcement, Task
+from scheduler.models import User, Announcement, Task, Announcement_recipent
 from flask_login import login_user, current_user, logout_user, login_required
 import secrets
 import os
 from PIL import Image
-
-# posts = [
-
-# {
-
-# 	'author':'atsushi', 
-# 	'title':'blog post 1',
-# 	'date': 'Oct 3rd 2020',
-# 	'content':'test1'
-
-# },
-
-
-# {
-
-# 	'author':'hanyca', 
-# 	'title':'blog post 2',
-# 	'date': 'Oct 3rd 2020',
-# 	'content':'test2'
-
-# }
-
-# ]
-
+import re
 
 
 
@@ -41,7 +18,9 @@ def home():
 @app.route('/main') # main user page
 def main():
 	page = request.args.get('page', 1, type = int)
-	announcements = Announcement.query.limit(3)
+	ann_ids = []
+	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
+	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids))
 	tasks = Task.query.all()
 	return render_template('main.html', announcements =announcements, tasks = tasks, title = 'Main')
 
@@ -140,9 +119,18 @@ def all_announcements():
 def new_announcement():
 	form = AnnouncementForm()
 	if form.validate_on_submit():
-		announcement = Announcement(title = form.title.data, content = form.content.data, author = current_user)
+		announcement = Announcement(title = form.title.data, content = form.content.data, 
+						author = current_user, audience = form.audience.data)
 		db.session.add(announcement)
 		db.session.commit()
+		ann_id = db.session.query(Announcement).order_by(Announcement.id.desc()).first().id
+		#all_audience = form.audience.data.split(",")
+		all_audience = re.findall(r'\w+',form.audience.data )
+		for audi in all_audience:
+			announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = audi)
+			db.session.add(announcement_rec)
+			db.session.commit()
+
 		flash('Your accoucement has been created', 'success')
 		return redirect(url_for('main'))
 	return render_template('new_announcement.html', title='New accouncement', form = form, legend = 'New Announcement')
