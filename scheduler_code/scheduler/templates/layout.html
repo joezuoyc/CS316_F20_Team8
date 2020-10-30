@@ -31,9 +31,11 @@
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
-              {% if current_user.is_authenticated  %}
+              {% if current_user.is_authenticated %}
+              {% if current_user.is_manager %}
               <a class="nav-item nav-link" href="{{ url_for('new_task') }}">Assign a new task</a>
-              <a class="nav-item nav-link" href="{{ url_for('new_announcement') }}">Post a new announcement</a>              
+              <a class="nav-item nav-link" href="{{ url_for('new_announcement') }}">Post a new announcement</a>   
+              {% endif %}           
               <a class="nav-item nav-link" href="{{ url_for('account') }}">Account</a>
               <a class="nav-item nav-link" href="{{ url_for('logout') }}">Log Out</a>
               {% else %}

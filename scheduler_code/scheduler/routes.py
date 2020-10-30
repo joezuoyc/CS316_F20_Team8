@@ -20,7 +20,7 @@ def main():
 	page = request.args.get('page', 1, type = int)
 	ann_ids = []
 	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
-	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids))
+	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).limit(3)
 	tasks = Task.query.all()
 	return render_template('main.html', announcements =announcements, tasks = tasks, title = 'Main')
 
@@ -110,7 +110,10 @@ def account():
 @app.route("/all_announcements", methods=['GET', 'POST'])
 def all_announcements():
 	page = request.args.get('page', 1, type = int)
-	announcements = Announcement.query.paginate(per_page = 5)
+	#announcements = Announcement.query.paginate(per_page = 5)
+	ann_ids = []
+	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
+	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
 
