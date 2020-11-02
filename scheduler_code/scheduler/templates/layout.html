@@ -33,8 +33,9 @@
             <div class="navbar-nav">
               {% if current_user.is_authenticated %}
               {% if current_user.is_manager %}
-              <a class="nav-item nav-link" href="{{ url_for('new_task') }}">Assign a new task</a>
-              <a class="nav-item nav-link" href="{{ url_for('new_announcement') }}">Post a new announcement</a>   
+              <a class="nav-item nav-link" href="{{ url_for('new_task') }}">New task</a>
+              <a class="nav-item nav-link" href="{{ url_for('new_announcement') }}">New announcement</a>
+              <a class="nav-item nav-link" href="{{ url_for('new_poll') }}">New poll</a>    
               {% endif %}           
               <a class="nav-item nav-link" href="{{ url_for('account') }}">Account</a>
               <a class="nav-item nav-link" href="{{ url_for('logout') }}">Log Out</a>
@@ -67,8 +68,8 @@
             <p class='text-muted'> Check all the things on your list.
               <ul class="list-group">
                 <a class="list-group-item list-group-item-light" href="{{ url_for('all_announcements') }}">All Announcements</a>
-                <a class="list-group-item list-group-item-light" href="{{ url_for('new_poll') }}">All Polls</a>
                 <a class="list-group-item list-group-item-light" href="{{ url_for('all_tasks') }}">All Tasks</a>
+                <a class="list-group-item list-group-item-light" href="{{ url_for('all_polls') }}">All Polls</a>
 
               </ul>
             </p>
