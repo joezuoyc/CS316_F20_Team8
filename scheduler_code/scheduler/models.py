@@ -43,12 +43,17 @@ class Poll(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    content = db.Column(db.Text, nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    option1 = db.Column(db.Text, nullable=False)
+    option2 = db.Column(db.Text, nullable=False)
     initiator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    audience = db.Column(db.String(300), nullable = False)
     def __repr__(self):
         return f"Poll('{self.title}', '{self.date_posted}')"
 
-
+class Poll_recipent(db.Model):
+    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable = False, primary_key = True)
+    recipient = db.Column(db.String(120),nullable = False,primary_key = True)
 
 
 class Task(db.Model):
@@ -63,12 +68,3 @@ class Task(db.Model):
 
 def init_db():
     db.create_all()
-
-    # Create a test task
-    new_task = Task(1, 'a', 'Oct 3rd 2020', 'nothing')
-    db.session.add(new_task)
-    db.session.commit()
-
-
-if __name__ == '__main__':
-    init_db()

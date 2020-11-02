@@ -35,3 +35,21 @@
   {% endfor  %} 
 
 {% endblock content2  %}
+
+{% block content3 %}
+
+
+  {% for poll in polls %}
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ poll.author.username }}</a>
+              <small class="text-muted">{{poll.date_posted.strftime('%m-%d-%Y') }}</small>
+            </div>
+            <h5><a class="article-title" href="{{url_for('poll', poll_id = poll.id)}}">{{ poll.title }}</a></h5>
+            <p class="article-content">{{ poll.content }}</p>
+          </div>
+        </article>
+  {% endfor  %} 
+
+{% endblock content3  %}
