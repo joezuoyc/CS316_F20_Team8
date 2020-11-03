@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+	<h1> Departments Page </h1>
+
+	{% for i in range(7) %}
+	<div class="card">
+		<h3 class="card-title">
+			{% if depts[i] == 'RaD' %}
+				Research & Development
+            {% elif depts[i] == 'HR' %}
+                Human Resource
+            {% else %}
+                {{depts[i]}}
+            {% endif %}
+		</h3>
+		<p class="card-text">
+			{% for username in belong[i] %}
+				{{username[0]}}
+			{% endfor %}
+		</p>
+	</div>
+	<br>
+	{% endfor %} 
+
+{% endblock content  %}
