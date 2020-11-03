@@ -42,7 +42,7 @@ def register():
 		manager = False
 		if form.role.data == "manager":
 			manager = True
-		user = User(username=form.username.data, email=form.email.data, password=hashed_pw, is_manager=manager)
+		user = User(username=form.username.data, email=form.email.data, password=hashed_pw, is_manager=manager, dept=form.dept.data)
 		db.session.add(user)
 		db.session.commit()		
 		flash(f'Account created for {form.username.data}!', 'success')
@@ -66,9 +66,6 @@ def login():
 	return render_template('login.html', title='Login', form=form)
 
 
-
-
-
 @app.route("/logout")
 def logout():
 	logout_user()
@@ -88,6 +85,15 @@ def save_picture(form_picture):
 	return picture_fn
 
 
+@app.route("/depts", methods=['GET'])
+def depts():
+	depts = ['Production', 'RaD', 'Purchasing', 'Marketing','HR', 'Accounting', 'Operations']
+	belong = [None] * 7
+	for i in range(7):
+		belong[i] = db.session.query(User.username).filter(User.dept == depts[i])
+	return render_template('depts.html', title='Departments', depts=depts, belong=belong)
+
+
 @app.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
@@ -98,12 +104,14 @@ def account():
 			current_user.image_file = picture_file
 		current_user.username = form.username.data
 		current_user.email    = form.email.data
+		current_user.dept = form.dept.data
 		db.session.commit()
 		flash('your account has been update','success')
 		return redirect(url_for('account'))
 	elif request.method == 'GET':
 		form.username.data = current_user.username
 		form.email.data = current_user.email
+		form.dept.data = current_user.dept
 	image_file = url_for('static', filename = 'profile_pics/' + current_user.image_file)
 	return render_template('account.html', title='Account', 
 								image_file = image_file, form = form)

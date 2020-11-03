@@ -13,6 +13,15 @@
             {% endif %}
           </p>
           <p class="text-secondary">{{current_user.email}}</p>
+          <p class="text-secondary">
+            {% if current_user.dept == 'RaD' %}
+                Research & Development
+            {% elif current_user.dept == 'HR' %}
+                Human Resource
+            {% else %}
+                {{current_user.dept}}
+            {% endif %}
+          </p>
         </div>
       </div>
              <form method="POST" action="" enctype="multipart/form-data">
@@ -46,7 +55,20 @@
                         {{ form.email(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
+                <div class="form-group">
+                    {{ form.dept.label(class="form-control-label") }}
 
+                    {% if form.dept.errors %}
+                        {{ form.dept(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.role.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.dept(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
                 <div class="form-group">
                     {{ form.picture.label() }}
                     {{ form.picture( class = "form-control-file") }}

@@ -12,6 +12,14 @@ class RegistrationForm(FlaskForm):
 	role = SelectField('Role', [DataRequired()],
                         choices=[('employee', 'Employee'),
                                  ('manager', 'Manager')])
+	dept = SelectField('Department', [DataRequired()],
+						choices=[('Production', 'Prodcution'),
+                                 ('RaD', 'Research & Development'),
+                                 ('Purchasing', 'Purchasing'),
+                                 ('Marketing', 'Marketing'),
+                                 ('HR', 'Human Resource'),
+                                 ('Accounting', 'Accounting'),
+                                 ('Operations', 'Operations')])
 	email = StringField('Email', validators = 
 					[DataRequired(), Email() ])
 	password = PasswordField('Password', validators = [DataRequired()] )
@@ -45,6 +53,14 @@ class UpdateAccountForm(FlaskForm):
 					[DataRequired(),Length(min = 2, max = 20) ])
 	email = StringField('Email', validators = 
 					[DataRequired(), Email() ])
+	dept = SelectField('Department', [DataRequired()],
+						choices=[('Production', 'Prodcution'),
+                                 ('RaD', 'Research & Development'),
+                                 ('Purchasing', 'Purchasing'),
+                                 ('Marketing', 'Marketing'),
+                                 ('HR', 'Human Resource'),
+                                 ('Accounting', 'Accounting'),
+                                 ('Operations', 'Operations')])
 	picture = FileField('Update Profile Picture', validators = [FileAllowed(['jpg','png'])])
 	submit = SubmitField('Update')
 
