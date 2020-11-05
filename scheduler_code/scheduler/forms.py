@@ -1,10 +1,14 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField
+from wtforms import widgets, StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField,SelectMultipleField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 import email_validator
 from scheduler.models import User
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
 
 class RegistrationForm(FlaskForm):
 	username = StringField('Username', validators = 
@@ -53,7 +57,7 @@ class UpdateAccountForm(FlaskForm):
 					[DataRequired(),Length(min = 2, max = 20) ])
 	email = StringField('Email', validators = 
 					[DataRequired(), Email() ])
-	dept = SelectField('Department', [DataRequired()],
+	dept = SelectMultipleField('Department', [DataRequired()],
 						choices=[('Production', 'Production'),
                                  ('RaD', 'Research & Development'),
                                  ('Purchasing', 'Purchasing'),
@@ -83,7 +87,9 @@ class AnnouncementForm(FlaskForm):
 	title = StringField('Title', validators = [DataRequired()])
 	content = TextAreaField('Content', validators = [DataRequired()])
 	submit = SubmitField('Post')
-	audience = StringField('Who are you sending to?')
+	audience = MultiCheckboxField('What are you sending this to?')
+
+
 
 class TaskForm(FlaskForm):
 	title = StringField('Title', validators = [DataRequired()])

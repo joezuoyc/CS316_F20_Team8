@@ -1,8 +1,9 @@
 {% extends "layout_main.html" %}
 
 {% block content %}
-
-
+    {% if tasks.count() == 0%}
+      <h5><a class="article-title">There is currently no task for you</a></h5>
+    {% endif %}
     {% for task in tasks %}
         <article class="media content-section">
           <div class="media-body">
@@ -20,7 +21,9 @@
 
 {% block content2 %}
 
-
+    {% if announcements.count() == 0%}
+      <h5><a class="article-title">There is currently no announcement for you</a></h5>
+    {% endif %}
     {% for announcement in announcements %}
         <article class="media content-section">
           <div class="media-body">
@@ -37,7 +40,9 @@
 {% endblock content2  %}
 
 {% block content3 %}
-
+    {% if polls.count() == 0%}
+      <h5><a class="article-title">There is currently no poll for you</a></h5>
+    {% endif %}
 
   {% for poll in polls %}
         <article class="media content-section">
