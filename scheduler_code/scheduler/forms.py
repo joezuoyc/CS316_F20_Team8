@@ -13,7 +13,7 @@ class RegistrationForm(FlaskForm):
                         choices=[('employee', 'Employee'),
                                  ('manager', 'Manager')])
 	dept = SelectField('Department', [DataRequired()],
-						choices=[('Production', 'Prodcution'),
+						choices=[('Production', 'Production'),
                                  ('RaD', 'Research & Development'),
                                  ('Purchasing', 'Purchasing'),
                                  ('Marketing', 'Marketing'),
@@ -54,7 +54,7 @@ class UpdateAccountForm(FlaskForm):
 	email = StringField('Email', validators = 
 					[DataRequired(), Email() ])
 	dept = SelectField('Department', [DataRequired()],
-						choices=[('Production', 'Prodcution'),
+						choices=[('Production', 'Production'),
                                  ('RaD', 'Research & Development'),
                                  ('Purchasing', 'Purchasing'),
                                  ('Marketing', 'Marketing'),
@@ -89,6 +89,7 @@ class TaskForm(FlaskForm):
 	title = StringField('Title', validators = [DataRequired()])
 	content = TextAreaField('Content', validators = [DataRequired()])
 	submit = SubmitField('Post')
+	audience = StringField('Who are you sending to?')
 
 class PollForm(FlaskForm):
 	title = StringField('Title of your poll', validators = [DataRequired()])
