@@ -1,8 +1,8 @@
-  
+
 from flask import render_template, url_for, flash, redirect, request, abort
 from scheduler import app, db, bcrypt
 from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm
-from scheduler.models import User, Announcement, Task, Announcement_recipent, Poll, Poll_recipent
+from scheduler.models import User, Announcement, Task, Announcement_recipent, Poll, Poll_recipent, Task_recipent
 from flask_login import login_user, current_user, logout_user, login_required
 import secrets
 import os
@@ -21,7 +21,9 @@ def main():
 	ann_ids = []
 	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).limit(3)
-	tasks = Task.query.all()
+	task_ids = []
+	task_ids = db.session.query(Task_recipent.task_id).filter(Task_recipent.recipient == current_user.username)
+	tasks = Task.query.filter(Task.id.in_(task_ids)).limit(3)
 	poll_ids = []
 	poll_ids = db.session.query(Poll_recipent.poll_id).filter(Poll_recipent.recipient == current_user.username)
 	polls = Poll.query.filter(Poll.id.in_(poll_ids)).limit(3)
@@ -220,7 +222,10 @@ def poll(poll_id):
 @app.route("/all_polls", methods=['GET', 'POST'])
 def all_polls():
 	page = request.args.get('page', 1, type = int)
-	polls = Poll.query.paginate(per_page = 5)
+	#polls = Poll.query.paginate(per_page = 5)
+	poll_ids = []
+	poll_ids = db.session.query(Poll_recipent.poll_id).filter(Poll_recipent.recipient == current_user.username)
+	polls = Poll.query.filter(Poll.id.in_(poll_ids)).paginate(per_page = 5)
 	return render_template('all_polls.html', polls =polls, title = 'All polls')
 
 @app.route("/polls/<int:poll_id>/delete", methods=['POST'])
@@ -238,7 +243,10 @@ def delete_poll(poll_id):
 @app.route("/all_tasks", methods=['GET', 'POST'])
 def all_tasks():
 	page = request.args.get('page', 1, type = int)
-	tasks = Task.query.paginate(per_page = 5)
+	#tasks = Task.query.paginate(per_page = 5)
+	task_ids = []
+	task_ids = db.session.query(Task_recipent.task_id).filter(Task_recipent.recipient == current_user.username)
+	tasks = Task.query.filter(Task.id.in_(task_ids)).paginate(per_page = 5)
 	return render_template('all_tasks.html', tasks =tasks, title = 'All tasks')
 
 
@@ -247,9 +255,18 @@ def all_tasks():
 def new_task():
 	form = TaskForm()
 	if form.validate_on_submit():
-		task = Task(title = form.title.data, content = form.content.data, author = current_user)
+		task = Task(title = form.title.data, content = form.content.data, author = current_user, audience = form.audience.data)
 		db.session.add(task)
 		db.session.commit()
+
+		task_id = db.session.query(Task).order_by(Task.id.desc()).first().id
+		all_audience = re.findall(r'\w+',form.audience.data )
+		all_audience = set(all_audience + [current_user.username])
+		for audi in all_audience:
+			task_rec = Task_recipent(task_id = task_id, recipient = audi)
+			db.session.add(task_rec)
+			db.session.commit()
+
 		flash('Your task has been assigned', 'success')
 		return redirect(url_for('main'))
 	return render_template('new_task.html', title='New task', form = form)
