@@ -19,7 +19,7 @@ def home():
 def main():
 	page = request.args.get('page', 1, type = int)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
+	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.id)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).limit(3)
 	task_ids = []
 	task_ids = db.session.query(Task_recipent.task_id).filter(Task_recipent.recipient == current_user.username)
@@ -125,7 +125,7 @@ def all_announcements():
 	page = request.args.get('page', 1, type = int)
 	#announcements = Announcement.query.paginate(per_page = 5)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
+	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.id)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
