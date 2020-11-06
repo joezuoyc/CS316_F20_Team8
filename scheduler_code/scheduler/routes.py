@@ -130,25 +130,66 @@ def all_announcements():
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
 
+general_groups = [('All','All users'),('Managers','All Managers'),('Employees','All Employees')]
+dept_groups = [				 	 ('Production', 'All Production'),
+                                 ('RaD', 'All Research & Development'),
+                                 ('Purchasing', 'All Purchasing'),
+                                 ('Marketing', 'All Marketing'),
+                                 ('HR', 'All Human Resource'),
+                                 ('Accounting', 'All Accounting'),
+                                 ('Operations', 'All Operations')]
+departments = ['Managers','Employees','Production','RaD','Purchasing''Marketing','HR','Accounting','Operations']
+audience_groups = general_groups + dept_groups
+
+
 @app.route("/announcements/new", methods=['GET', 'POST'])
 @login_required
 def new_announcement():
 	form = AnnouncementForm()
+	form.audience.choices = audience_groups
 	if form.validate_on_submit():
 		announcement = Announcement(title = form.title.data, content = form.content.data, 
-						author = current_user, audience = form.audience.data)
+						author = current_user)
 		db.session.add(announcement)
 		db.session.commit()
 		ann_id = db.session.query(Announcement).order_by(Announcement.id.desc()).first().id
-		#all_audience = form.audience.data.split(",")
-		all_audience = re.findall(r'\w+',form.audience.data )
-		all_audience = set(all_audience + [current_user.username])
-		for audi in all_audience:
-			announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = audi)
-			db.session.add(announcement_rec)
+		audi_groups = form.audience.data
+		
+		# loop over different scenarios
+		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
+			all_users = User.query.all()
+			for user in all_users:
+				announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = user.id)
+				db.session.add(announcement_rec)
 			db.session.commit()
 
-		flash('Your accoucement has been created', 'success')
+		else:
+			if 'Managers' in audi_groups:
+				managers = User.query.filter(User.is_manager)
+				for man in managers:
+					announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = man.id)
+					db.session.add(announcement_rec)
+			if 'Employees' in audi_groups:
+				employees = User.query.filter(User.is_manager == False)
+				for emp in employees:
+					announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = emp.id)
+					db.session.add(announcement_rec)
+			for dept in departments:
+				dept_members = User.query.filter(User.dept == dept)
+				for mem in dept_members:
+					announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = mem.id)
+					db.session.add(announcement_rec)
+			db.session.commit()
+
+		#all_audience = form.audience.data.split(",")
+		# all_audience = re.findall(r'\w+',form.audience.data )
+		# all_audience = set(all_audience + [current_user.username])
+		# for audi in all_audience:
+		# 	announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = audi)
+		# 	db.session.add(announcement_rec)
+		# 	db.session.commit()
+
+		flash('Your annoucement has been created', 'success')
 		return redirect(url_for('main'))
 	return render_template('new_announcement.html', title='New accouncement', form = form, legend = 'New Announcement')
 
