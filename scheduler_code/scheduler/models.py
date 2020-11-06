@@ -33,7 +33,6 @@ class Announcement(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # audience = db.Column(db.String(300), nullable = False)
     def __repr__(self):
         return f"Announcement('{self.title}', '{self.date_posted}')"
 
@@ -51,13 +50,12 @@ class Poll(db.Model):
     option1 = db.Column(db.Text, nullable=False)
     option2 = db.Column(db.Text, nullable=False)
     initiator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    audience = db.Column(db.String(300), nullable = False)
     def __repr__(self):
         return f"Poll('{self.title}', '{self.date_posted}')"
 
 class Poll_recipent(db.Model):
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable = False, primary_key = True)
-    recipient = db.Column(db.String(120),nullable = False,primary_key = True)
+    recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
 
 
 class Task(db.Model):
@@ -66,13 +64,12 @@ class Task(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    audience = db.Column(db.String(300), nullable = False)
     def __repr__(self):
         return f"Task('{self.title}', '{self.date_posted}')"
 
 class Task_recipent(db.Model):
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable = False, primary_key = True)
-    recipient = db.Column(db.String(120),nullable = False,primary_key = True)
+    recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
 
 def init_db():
     db.create_all()

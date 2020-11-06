@@ -95,7 +95,7 @@ class TaskForm(FlaskForm):
 	title = StringField('Title', validators = [DataRequired()])
 	content = TextAreaField('Content', validators = [DataRequired()])
 	submit = SubmitField('Post')
-	audience = StringField('Who are you sending to?')
+	audience = MultiCheckboxField('What are you sending this to?')
 
 class PollForm(FlaskForm):
 	title = StringField('Title of your poll', validators = [DataRequired()])
@@ -103,5 +103,5 @@ class PollForm(FlaskForm):
 	option1 = StringField('Option 1', validators = [DataRequired()])
 	option2 = StringField('Option 2', validators = [DataRequired()])
 	submit = SubmitField('Post')
-	audience = StringField('Who are you sending to?', validators = [DataRequired()])
+	audience = MultiCheckboxField('What are you sending this to?')
 
