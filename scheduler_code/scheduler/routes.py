@@ -19,13 +19,13 @@ def home():
 def main():
 	page = request.args.get('page', 1, type = int)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
+	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.id)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).limit(3)
 	task_ids = []
-	task_ids = db.session.query(Task_recipent.task_id).filter(Task_recipent.recipient == current_user.username)
+	task_ids = db.session.query(Task_recipent.task_id).filter(Task_recipent.recipient == current_user.id)
 	tasks = Task.query.filter(Task.id.in_(task_ids)).limit(3)
 	poll_ids = []
-	poll_ids = db.session.query(Poll_recipent.poll_id).filter(Poll_recipent.recipient == current_user.username)
+	poll_ids = db.session.query(Poll_recipent.poll_id).filter(Poll_recipent.recipient == current_user.id)
 	polls = Poll.query.filter(Poll.id.in_(poll_ids)).limit(3)
 	return render_template('main.html', announcements =announcements, tasks = tasks, polls = polls,title = 'Main')
 
@@ -125,7 +125,7 @@ def all_announcements():
 	page = request.args.get('page', 1, type = int)
 	#announcements = Announcement.query.paginate(per_page = 5)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.username)
+	ann_ids = db.session.query(Announcement_recipent.announcement_id).filter(Announcement_recipent.recipient == current_user.id)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
@@ -180,15 +180,6 @@ def new_announcement():
 					announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = mem.id)
 					db.session.add(announcement_rec)
 			db.session.commit()
-
-		#all_audience = form.audience.data.split(",")
-		# all_audience = re.findall(r'\w+',form.audience.data )
-		# all_audience = set(all_audience + [current_user.username])
-		# for audi in all_audience:
-		# 	announcement_rec = Announcement_recipent(announcement_id = ann_id, recipient = audi)
-		# 	db.session.add(announcement_rec)
-		# 	db.session.commit()
-
 		flash('Your annoucement has been created', 'success')
 		return redirect(url_for('main'))
 	return render_template('new_announcement.html', title='New accouncement', form = form, legend = 'New Announcement')
@@ -235,19 +226,42 @@ def delete_announcement(announcement_id):
 @login_required
 def new_poll():
 	form = PollForm()
+	form.audience.choices = audience_groups
 	if form.validate_on_submit():
 		poll = Poll(title = form.title.data, 
 						author = current_user, question = form.question.data, 
-						option1 = form.option1.data, option2 = form.option2.data, audience = form.audience.data)
+						option1 = form.option1.data, option2 = form.option2.data)
 		db.session.add(poll)
 		db.session.commit()
 
 		poll_id = db.session.query(Poll).order_by(Poll.id.desc()).first().id
-		all_audience = re.findall(r'\w+',form.audience.data )
-		all_audience = set(all_audience + [current_user.username])
-		for audi in all_audience:
-			poll_rec = Poll_recipent(poll_id = poll_id, recipient = audi)
-			db.session.add(poll_rec)
+
+		audi_groups = form.audience.data
+		
+		# loop over different scenarios
+		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
+			all_users = User.query.all()
+			for user in all_users:
+				poll_rec = Poll_recipent(poll_id = poll_id, recipient = user.id)
+				db.session.add(poll_rec)
+			db.session.commit()
+
+		else:
+			if 'Managers' in audi_groups:
+				managers = User.query.filter(User.is_manager)
+				for man in managers:
+					poll_rec = Poll_recipent(poll_id = poll_id, recipient = man.id)
+					db.session.add(poll_rec)
+			if 'Employees' in audi_groups:
+				employees = User.query.filter(User.is_manager == False)
+				for emp in employees:
+					poll_rec = Poll_recipent(poll_id = poll_id, recipient = emp.id)
+					db.session.add(poll_rec)
+			for dept in departments:
+				dept_members = User.query.filter(User.dept == dept)
+				for mem in dept_members:
+					task_rec = Poll_recipent(poll_id = poll_id, recipient = mem.id)
+					db.session.add(poll_rec)
 			db.session.commit()
 
 		flash('Your poll has been created', 'success')
@@ -265,7 +279,7 @@ def all_polls():
 	page = request.args.get('page', 1, type = int)
 	#polls = Poll.query.paginate(per_page = 5)
 	poll_ids = []
-	poll_ids = db.session.query(Poll_recipent.poll_id).filter(Poll_recipent.recipient == current_user.username)
+	poll_ids = db.session.query(Poll_recipent.poll_id).filter(Poll_recipent.recipient == current_user.id)
 	polls = Poll.query.filter(Poll.id.in_(poll_ids)).paginate(per_page = 5)
 	return render_template('all_polls.html', polls =polls, title = 'All polls')
 
@@ -286,7 +300,7 @@ def all_tasks():
 	page = request.args.get('page', 1, type = int)
 	#tasks = Task.query.paginate(per_page = 5)
 	task_ids = []
-	task_ids = db.session.query(Task_recipent.task_id).filter(Task_recipent.recipient == current_user.username)
+	task_ids = db.session.query(Task_recipent.task_id).filter(Task_recipent.recipient == current_user.id)
 	tasks = Task.query.filter(Task.id.in_(task_ids)).paginate(per_page = 5)
 	return render_template('all_tasks.html', tasks =tasks, title = 'All tasks')
 
@@ -295,18 +309,43 @@ def all_tasks():
 @login_required
 def new_task():
 	form = TaskForm()
+	form.audience.choices = audience_groups
 	if form.validate_on_submit():
-		task = Task(title = form.title.data, content = form.content.data, author = current_user, audience = form.audience.data)
+		task = Task(title = form.title.data, content = form.content.data, author = current_user)
 		db.session.add(task)
 		db.session.commit()
 
 		task_id = db.session.query(Task).order_by(Task.id.desc()).first().id
-		all_audience = re.findall(r'\w+',form.audience.data )
-		all_audience = set(all_audience + [current_user.username])
-		for audi in all_audience:
-			task_rec = Task_recipent(task_id = task_id, recipient = audi)
-			db.session.add(task_rec)
+
+		audi_groups = form.audience.data
+		
+		# loop over different scenarios
+		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
+			all_users = User.query.all()
+			for user in all_users:
+				task_rec = Task_recipent(task_id = task_id, recipient = user.id)
+				db.session.add(task_rec)
 			db.session.commit()
+
+		else:
+			if 'Managers' in audi_groups:
+				managers = User.query.filter(User.is_manager)
+				for man in managers:
+					task_rec = Task_recipent(task_id = task_id, recipient = man.id)
+					db.session.add(Task_rec)
+			if 'Employees' in audi_groups:
+				employees = User.query.filter(User.is_manager == False)
+				for emp in employees:
+					task_rec = Task_recipent(task_id = task_id, recipient = emp.id)
+					db.session.add(task_rec)
+			for dept in departments:
+				dept_members = User.query.filter(User.dept == dept)
+				for mem in dept_members:
+					task_rec = task_recipent(task_id = task_id, recipient = mem.id)
+					db.session.add(task_rec)
+			db.session.commit()
+
+
 
 		flash('Your task has been assigned', 'success')
 		return redirect(url_for('main'))
