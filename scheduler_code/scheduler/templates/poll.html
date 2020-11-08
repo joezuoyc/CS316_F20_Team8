@@ -1,42 +1,41 @@
 {% extends "layout.html" %}
 
 {% block content %}
+ <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+            <h2 class = "article-title">{{ form.title }}</h2>
+            <h3 class = "article-title">{{ form.question }}</h3>
 
-  <article class="media content-section">
-    <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + poll.author.image_file) }}">
-    <div class="media-body">
-      <div class="article-metadata">
-        <a class="mr-2" href="#">{{ poll.author.username }}</a>
-        <small class="text-muted">{{poll.date_posted.strftime('%m-%d-%Y') }}</small>
-        {% if poll.author == current_user %}
-        <div>
-          <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
-        </div>
-        {% endif %}
-      </div>
-      <h2 class = "article-title">{{ poll.title }}</h2>
-      <h3 class = "article-title">{{ poll.question }}</h3>
-      <p class="article-content">{{ poll.option1 }}</p> 
-      <button type="submit">Select</button>
-      <p class="article-content">{{ poll.option2 }}</p>
-      <button type="submit">Select</button>
-      
-    </div>
-  </article>
+            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+
+            <div class="form-group">
+                    
+            {{ form.choice(class="selectpicker") }} 
+                   
+            </div>
+
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+</div>
 
       <!-- Modal -->
   <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="deleteModalLabel">Delete poll?</h5>
+          <h5 class="modal-title" id="deleteModalLabel">Delete Poll?</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form action="{{ url_for('delete_poll',poll_id=poll.id) }}" method="POST">
+          <form action="{{ url_for('delete_poll',poll_id=poll_id) }}" method="POST">
             <input class="btn btn-danger" type="submit" value="Delete">
           </form>
         </div>

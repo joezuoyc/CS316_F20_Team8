@@ -1,8 +1,8 @@
 
 from flask import render_template, url_for, flash, redirect, request, abort
 from scheduler import app, db, bcrypt
-from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm
-from scheduler.models import User, Announcement, Task, Announcement_recipent, Poll, Poll_recipent, Task_recipent
+from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm, PollResponseForm, PollResultForm
+from scheduler.models import User, Announcement, Task, Announcement_recipent, Poll, Poll_recipent, Task_recipent, Poll_response
 from flask_login import login_user, current_user, logout_user, login_required
 import secrets
 import os
@@ -268,10 +268,34 @@ def new_poll():
 		return redirect(url_for('main'))
 	return render_template('new_poll.html', title='New poll', form = form, legend = 'New Poll')
 
-@app.route("/polls/<poll_id>")
+@app.route("/polls/<poll_id>", methods=['GET', 'POST'])
+@login_required
 def poll(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
-	return render_template('poll.html', title= poll.title, poll = poll)
+	form = PollResponseForm(title=poll.title, question=poll.question)
+	option1 = poll.option1
+	option2 = poll.option2
+	form.choice.choices = [(option1, option1), (option2, option2)]
+	#if form.validate_on_submit():
+	if request.method == 'POST':
+		if not form.validate():
+			flash(form.errors)
+			return render_template('poll.html', form = form)
+		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=','.join(form.choice.data))
+		db.session.add(poll_res)
+		db.session.commit()
+		flash('Your response has been submmitted', 'success')
+		return redirect(url_for('main'))
+	return render_template('poll.html', form = form, poll_id=poll_id)
+
+
+@app.route("/polls/<poll_id>/result")
+@login_required
+def poll_result(poll_id):
+	poll = Poll.query.get_or_404(poll_id)
+	form = PollResultForm(title=poll.title)
+	return render_template('poll_result.html', form=form)
+    
 
 
 @app.route("/all_polls", methods=['GET', 'POST'])
