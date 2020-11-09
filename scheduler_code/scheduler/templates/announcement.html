@@ -13,7 +13,20 @@
           
           <a class = "btn btn-secondary btn-sm mt1 mb1" href ="{{ url_for('update_announcement', announcement_id = announcement.id) }}" >Update</a>
           <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+
+        {% if read == 0 %}
+          <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#readModal">Mark as read</button>
+          {% else %}
+          <button type="button" class="btn btn-secondary btn-sm m-1" data-toggle="modal" data-target="#unreadModal">Mark as unread</button>
+      {% endif %}
         </div>
+
+        {% else %}
+         {% if read == 0 %}
+          <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#readModal">Mark as read</button>
+          {% else %}
+          <button type="button" class="btn btn-secondary btn-sm m-1" data-toggle="modal" data-target="#unreadModal">Mark as unread</button>
+      {% endif %}       
         {% endif %}
       </div>
       <h2 class = "article-title">{{ announcement.title }}</h2>
@@ -35,6 +48,44 @@
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <form action="{{ url_for('delete_announcement',announcement_id=announcement.id) }}" method="POST">
             <input class="btn btn-danger" type="submit" value="Delete">
+          </form>
+        </div>
+      </div>
+      </div>
+    </div>
+
+  <div class="modal fade" id="readModal" tabindex="-1" role="dialog" aria-labelledby="readModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="readModalLabel">Mark Announcement As Read?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('mark_announcement',announcement_id=announcement.id)}}" method="POST">
+            <input class="btn btn-danger" type="submit" value="Mark As Read">
+          </form>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="unreadModal" tabindex="-1" role="dialog" aria-labelledby="unreadModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="unreadModalLabel">Mark Announcement As Unread?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('mark_announcement', announcement_id=announcement.id)}}" method="POST">
+            <input class="btn btn-secondary" type="submit" value="Mark As Unread">
           </form>
         </div>
       </div>
