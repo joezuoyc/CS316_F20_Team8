@@ -1,8 +1,8 @@
 
 from flask import render_template, url_for, flash, redirect, request, abort
 from scheduler import app, db, bcrypt
-from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm
-from scheduler.models import User, Announcement, Task, Announcement_recipent, Poll, Poll_recipent, Task_recipent
+from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm, PollResponseForm, PollResultForm
+from scheduler.models import User, Announcement, Task, Announcement_recipent, Poll, Poll_recipent, Task_recipent, Poll_response
 from flask_login import login_user, current_user, logout_user, login_required
 import secrets
 import os
@@ -273,10 +273,34 @@ def new_poll():
 		return redirect(url_for('main'))
 	return render_template('new_poll.html', title='New poll', form = form, legend = 'New Poll')
 
-@app.route("/polls/<poll_id>")
+@app.route("/polls/<poll_id>", methods=['GET', 'POST'])
+@login_required
 def poll(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
-	return render_template('poll.html', title= poll.title, poll = poll)
+	form = PollResponseForm(title=poll.title, question=poll.question)
+	option1 = poll.option1
+	option2 = poll.option2
+	form.choice.choices = [(option1, option1), (option2, option2)]
+	#if form.validate_on_submit():
+	if request.method == 'POST':
+		if not form.validate():
+			flash(form.errors)
+			return render_template('poll.html', form = form)
+		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=','.join(form.choice.data))
+		db.session.add(poll_res)
+		db.session.commit()
+		flash('Your response has been submmitted', 'success')
+		return redirect(url_for('main'))
+	return render_template('poll.html', form = form, poll_id=poll_id)
+
+
+@app.route("/polls/<poll_id>/result")
+@login_required
+def poll_result(poll_id):
+	poll = Poll.query.get_or_404(poll_id)
+	form = PollResultForm(title=poll.title)
+	return render_template('poll_result.html', form=form)
+    
 
 
 @app.route("/all_polls", methods=['GET', 'POST'])
@@ -314,7 +338,16 @@ def all_tasks():
 @login_required
 def new_task():
 	form = TaskForm()
-	form.audience.choices = audience_groups
+	users = [(user.id, user.username) for user in User.query.all()]
+	users.sort(key=lambda x: x[1])
+	form.assignee1.choices = users
+	users_null = [(user.id, user.username) for user in User.query.all()]
+	users_null.sort(key=lambda x: x[1])
+	users_null.insert(0, (-1, ''))
+	for assignee in [form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
+		assignee.choices = users_null
+	# form.audience.choices = audience_groups
+
 	if form.validate_on_submit():
 		task = Task(title = form.title.data, content = form.content.data, author = current_user)
 		db.session.add(task)
@@ -322,35 +355,45 @@ def new_task():
 
 		task_id = db.session.query(Task).order_by(Task.id.desc()).first().id
 
-		audi_groups = form.audience.data
+		assignees = []
+		for assignee in [form.assignee1, form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
+			if assignee.data != -1 and assignee.data not in assignees:
+				assignees.append(assignee.data)
+
+		# users = User.query.filter(User.username in assignees)
+
+		for userid in assignees:
+			task_rec = Task_recipent(task_id = task_id, recipient = userid)
+			db.session.add(task_rec)
+		db.session.commit()
+
+		# audi_groups = form.audience.data
 		
 		# loop over different scenarios
-		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
-			all_users = User.query.all()
-			for user in all_users:
-				task_rec = Task_recipent(task_id = task_id, recipient = user.id)
-				db.session.add(task_rec)
-			db.session.commit()
+		# if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
+		# 	all_users = User.query.all()
+		# 	for user in all_users:
+		# 		task_rec = Task_recipent(task_id = task_id, recipient = user.id)
+		# 		db.session.add(task_rec)
+		# 	db.session.commit()
 
-		else:
-			if 'Managers' in audi_groups:
-				managers = User.query.filter(User.is_manager)
-				for man in managers:
-					task_rec = Task_recipent(task_id = task_id, recipient = man.id)
-					db.session.add(Task_rec)
-			if 'Employees' in audi_groups:
-				employees = User.query.filter(User.is_manager == False)
-				for emp in employees:
-					task_rec = Task_recipent(task_id = task_id, recipient = emp.id)
-					db.session.add(task_rec)
-			for dept in departments:
-				dept_members = User.query.filter(User.dept == dept)
-				for mem in dept_members:
-					task_rec = task_recipent(task_id = task_id, recipient = mem.id)
-					db.session.add(task_rec)
-			db.session.commit()
-
-
+		# else:
+		# 	if 'Managers' in audi_groups:
+		# 		managers = User.query.filter(User.is_manager)
+		# 		for man in managers:
+		# 			task_rec = Task_recipent(task_id = task_id, recipient = man.id)
+		# 			db.session.add(Task_rec)
+		# 	if 'Employees' in audi_groups:
+		# 		employees = User.query.filter(User.is_manager == False)
+		# 		for emp in employees:
+		# 			task_rec = Task_recipent(task_id = task_id, recipient = emp.id)
+		# 			db.session.add(task_rec)
+		# 	for dept in departments:
+		# 		dept_members = User.query.filter(User.dept == dept)
+		# 		for mem in dept_members:
+		# 			task_rec = task_recipent(task_id = task_id, recipient = mem.id)
+		# 			db.session.add(task_rec)
+		# 	db.session.commit()
 
 		flash('Your task has been assigned', 'success')
 		return redirect(url_for('main'))
