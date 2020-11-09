@@ -222,6 +222,11 @@ def delete_announcement(announcement_id):
     flash('Your announcement has been deleted!', 'success')
     return redirect(url_for('main'))
 
+
+
+
+
+
 @app.route("/poll/new", methods=['GET', 'POST'])
 @login_required
 def new_poll():
