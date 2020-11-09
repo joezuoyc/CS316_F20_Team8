@@ -309,7 +309,16 @@ def all_tasks():
 @login_required
 def new_task():
 	form = TaskForm()
-	form.audience.choices = audience_groups
+	users = [(user.id, user.username) for user in User.query.all()]
+	users.sort(key=lambda x: x[1])
+	form.assignee1.choices = users
+	users_null = [(user.id, user.username) for user in User.query.all()]
+	users_null.sort(key=lambda x: x[1])
+	users_null.insert(0, (-1, ''))
+	for assignee in [form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
+		assignee.choices = users_null
+	# form.audience.choices = audience_groups
+
 	if form.validate_on_submit():
 		task = Task(title = form.title.data, content = form.content.data, author = current_user)
 		db.session.add(task)
@@ -317,35 +326,45 @@ def new_task():
 
 		task_id = db.session.query(Task).order_by(Task.id.desc()).first().id
 
-		audi_groups = form.audience.data
+		assignees = []
+		for assignee in [form.assignee1, form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
+			if assignee.data != '' and assignee.data not in assignees:
+				assignees.append(assignee.data)
+
+		users = User.query.filter(User.username in assignees)
+
+		for user in users:
+			task_rec = Task_recipent(task_id = task_id, recipient = user.id)
+			db.session.add(task_rec)
+		db.session.commit()
+
+		# audi_groups = form.audience.data
 		
 		# loop over different scenarios
-		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
-			all_users = User.query.all()
-			for user in all_users:
-				task_rec = Task_recipent(task_id = task_id, recipient = user.id)
-				db.session.add(task_rec)
-			db.session.commit()
+		# if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
+		# 	all_users = User.query.all()
+		# 	for user in all_users:
+		# 		task_rec = Task_recipent(task_id = task_id, recipient = user.id)
+		# 		db.session.add(task_rec)
+		# 	db.session.commit()
 
-		else:
-			if 'Managers' in audi_groups:
-				managers = User.query.filter(User.is_manager)
-				for man in managers:
-					task_rec = Task_recipent(task_id = task_id, recipient = man.id)
-					db.session.add(Task_rec)
-			if 'Employees' in audi_groups:
-				employees = User.query.filter(User.is_manager == False)
-				for emp in employees:
-					task_rec = Task_recipent(task_id = task_id, recipient = emp.id)
-					db.session.add(task_rec)
-			for dept in departments:
-				dept_members = User.query.filter(User.dept == dept)
-				for mem in dept_members:
-					task_rec = task_recipent(task_id = task_id, recipient = mem.id)
-					db.session.add(task_rec)
-			db.session.commit()
-
-
+		# else:
+		# 	if 'Managers' in audi_groups:
+		# 		managers = User.query.filter(User.is_manager)
+		# 		for man in managers:
+		# 			task_rec = Task_recipent(task_id = task_id, recipient = man.id)
+		# 			db.session.add(Task_rec)
+		# 	if 'Employees' in audi_groups:
+		# 		employees = User.query.filter(User.is_manager == False)
+		# 		for emp in employees:
+		# 			task_rec = Task_recipent(task_id = task_id, recipient = emp.id)
+		# 			db.session.add(task_rec)
+		# 	for dept in departments:
+		# 		dept_members = User.query.filter(User.dept == dept)
+		# 		for mem in dept_members:
+		# 			task_rec = task_recipent(task_id = task_id, recipient = mem.id)
+		# 			db.session.add(task_rec)
+		# 	db.session.commit()
 
 		flash('Your task has been assigned', 'success')
 		return redirect(url_for('main'))
