@@ -36,9 +36,12 @@ class Announcement(db.Model):
     def __repr__(self):
         return f"Announcement('{self.title}', '{self.date_posted}')"
 
-class Announcement_recipent(db.Model):
+class Announcement_recipient(db.Model):
     announcement_id = db.Column(db.Integer, db.ForeignKey('announcement.id'), nullable = False, primary_key = True)
     recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
+    read = db.Column(db.Integer, default = 0, nullable = False)
+    def __repr__(self):
+        return f"Announcement_recipient('{self.announcement_id}','{self.recipient}','{self.read}')"
 
 
 
@@ -58,7 +61,7 @@ class Poll_response(db.Model):
     recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
     choice = db.Column(db.Text, nullable=False)
 
-class Poll_recipent(db.Model):
+class Poll_recipient(db.Model):
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable = False, primary_key = True)
     recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
 
@@ -72,7 +75,7 @@ class Task(db.Model):
     def __repr__(self):
         return f"Task('{self.title}', '{self.date_posted}')"
 
-class Task_recipent(db.Model):
+class Task_recipient(db.Model):
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable = False, primary_key = True)
     recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
 
