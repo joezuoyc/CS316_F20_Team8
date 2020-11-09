@@ -57,7 +57,7 @@ class UpdateAccountForm(FlaskForm):
 					[DataRequired(),Length(min = 2, max = 20) ])
 	email = StringField('Email', validators = 
 					[DataRequired(), Email() ])
-	dept = SelectMultipleField('Department', [DataRequired()],
+	dept = SelectField('Department', [DataRequired()],
 						choices=[('Production', 'Production'),
                                  ('RaD', 'Research & Development'),
                                  ('Purchasing', 'Purchasing'),
