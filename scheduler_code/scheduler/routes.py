@@ -328,13 +328,13 @@ def new_task():
 
 		assignees = []
 		for assignee in [form.assignee1, form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
-			if assignee.data != '' and assignee.data not in assignees:
+			if assignee.data != -1 and assignee.data not in assignees:
 				assignees.append(assignee.data)
 
-		users = User.query.filter(User.username in assignees)
+		# users = User.query.filter(User.username in assignees)
 
-		for user in users:
-			task_rec = Task_recipent(task_id = task_id, recipient = user.id)
+		for userid in assignees:
+			task_rec = Task_recipent(task_id = task_id, recipient = userid)
 			db.session.add(task_rec)
 		db.session.commit()
 
