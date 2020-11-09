@@ -33,18 +33,20 @@
                     {% endif %}
                 </div>
                 <div class="form-group">
-                    {{ form.audience.label(class="form-control-label") }}
-                    {% if form.audience.errors %}
-                        {{ form.audience(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.audience.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.audience(class="selectpicker") }} 
-                      
-                    {% endif %}
+                    <p>Who are you assigning this task to?</p>
+                    {% for assignee in [form.assignee1, form.assignee2, form.assignee3, form.assignee4, form.assignee5] %}
+                        {{ assignee.label(class="form-control-label") }}
+                        {% if assignee.errors %}
+                            {{ assignee(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in assignee.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ assignee(class="form-control") }}
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </fieldset>
             <div class="form-group">

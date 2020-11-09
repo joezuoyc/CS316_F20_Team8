@@ -35,12 +35,12 @@ class RegistrationForm(FlaskForm):
 	def validate_username(self, username):
 		user = User.query.filter_by(username=username.data).first()
 		if user:
-			raise ValidationError('That username is taken. Please choose a different one.')
+			raise ValueError('That username is taken. Please choose a different one.')
 
 	def validate_email(self, email):
 		user = User.query.filter_by(email=email.data).first()
 		if user:
-			raise ValidationError('That email is taken. Please choose a different one.')
+			raise ValueError('That email is taken. Please choose a different one.')
 
 
 
@@ -73,13 +73,13 @@ class UpdateAccountForm(FlaskForm):
 		if username.data != current_user.username:
 			user = User.query.filter_by(username=username.data).first()
 			if user:
-				raise ValidationError('That username is taken. Please choose a different one.')
+				raise ValueError('That username is taken. Please choose a different one.')
 
 	def validate_email(self, email):
 		if email.data != current_user.email:
 			user = User.query.filter_by(email=email.data).first()
 			if user:
-				raise ValidationError('That email is taken. Please choose a different one.')
+				raise ValueError('That email is taken. Please choose a different one.')
 
 
 
@@ -95,7 +95,13 @@ class TaskForm(FlaskForm):
 	title = StringField('Title', validators = [DataRequired()])
 	content = TextAreaField('Content', validators = [DataRequired()])
 	submit = SubmitField('Post')
-	audience = MultiCheckboxField('What are you sending this to?')
+	# audience = MultiCheckboxField('What are you sending this to?')
+	assignee1 = SelectField('Assignee 1', choices=[], validators = [DataRequired()], default='')
+	assignee2 = SelectField('Assignee 2 (Optional)', choices=[])
+	assignee3 = SelectField('Assignee 3 (Optional)', choices=[])
+	assignee4 = SelectField('Assignee 4 (Optional)', choices=[])
+	assignee5 = SelectField('Assignee 5 (Optional)', choices=[])
+
 
 class PollForm(FlaskForm):
 	title = StringField('Title of your poll', validators = [DataRequired()])
@@ -103,5 +109,5 @@ class PollForm(FlaskForm):
 	option1 = StringField('Option 1', validators = [DataRequired()])
 	option2 = StringField('Option 2', validators = [DataRequired()])
 	submit = SubmitField('Post')
-	audience = MultiCheckboxField('What are you sending this to?')
+	audience = MultiCheckboxField('What are you sending this to?', coerce=int)
 
