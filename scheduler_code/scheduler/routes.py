@@ -292,15 +292,15 @@ def new_poll():
 @login_required
 def poll(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
+	userid = current_user.id
+	duplicate = Poll_response.query.filter(Poll_response.poll_id == poll_id and Poll_response.recipient == userid)
+	if duplicate.first() is not None:
+		flash("You have submmitted to this poll already.", 'warning')
 	form = PollResponseForm(title=poll.title, question=poll.question)
 	option1 = poll.option1
 	option2 = poll.option2
 	form.choice.choices = [(option1, option1), (option2, option2)]
-	#if form.validate_on_submit():
-	if request.method == 'POST':
-		if not form.validate():
-			flash(form.errors)
-			return render_template('poll.html', form = form)
+	if form.validate_on_submit():
 		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=','.join(form.choice.data))
 		db.session.add(poll_res)
 		db.session.commit()

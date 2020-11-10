@@ -109,7 +109,7 @@ class PollForm(FlaskForm):
 	option1 = StringField('Option 1', validators = [DataRequired()])
 	option2 = StringField('Option 2', validators = [DataRequired()])
 	submit = SubmitField('Post')
-	audience = MultiCheckboxField('What are you sending this to?', coerce=int)
+	audience = MultiCheckboxField('What are you sending this to?')
 
 class PollResponseForm(FlaskForm):
 	title = StringField('Title of the poll', validators = [DataRequired()])
