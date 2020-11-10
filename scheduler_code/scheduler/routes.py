@@ -8,6 +8,7 @@ import secrets
 import os
 from PIL import Image
 import re
+from sqlalchemy import exc
 
 
 
@@ -154,32 +155,52 @@ def new_announcement():
 		db.session.commit()
 		ann_id = db.session.query(Announcement).order_by(Announcement.id.desc()).first().id
 		audi_groups = form.audience.data
+		announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = current_user.id, read = 1)
+		db.session.add(announcement_rec)
+		db.session.commit()
 		
 		# loop over different scenarios
 		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
 			all_users = User.query.all()
 			for user in all_users:
-				announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = user.id, read = 0)
-				db.session.add(announcement_rec)
+				try:
+					announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = user.id, read = 0)
+					db.session.add(announcement_rec)
+					db.session.commit()
+				except exc.IntegrityError as e:
+					db.session.rollback()
+
 			db.session.commit()
 
 		else:
 			if 'Managers' in audi_groups:
 				managers = User.query.filter(User.is_manager)
 				for man in managers:
-					announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = man.id, read = 0)
-					db.session.add(announcement_rec)
+					try:
+						announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = man.id, read = 0)
+						db.session.add(announcement_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						db.session.rollback()
 			if 'Employees' in audi_groups:
 				employees = User.query.filter(User.is_manager == False)
 				for emp in employees:
-					announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = emp.id,  read = 0)
-					db.session.add(announcement_rec)
+					try:
+						announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = emp.id,  read = 0)
+						db.session.add(announcement_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						db.session.rollback()
 			for dept in departments:
 				dept_members = User.query.filter(User.dept == dept)
 				for mem in dept_members:
-					announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = mem.id,  read = 0)
-					db.session.add(announcement_rec)
-			db.session.commit()
+					try:
+						announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = mem.id,  read = 0)
+						db.session.add(announcement_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						db.session.rollback()
+
 		flash('Your annoucement has been created', 'success')
 		return redirect(url_for('main'))
 	return render_template('new_announcement.html', title='New accouncement', form = form, legend = 'New Announcement')
@@ -188,7 +209,6 @@ def new_announcement():
 def announcement(announcement_id):
 	announcement = Announcement.query.get_or_404(announcement_id)
 	read = db.session.query(Announcement_recipient.read).filter(Announcement_recipient.announcement_id == announcement_id and Announcement_recipient.recipient == current_user.id).first()
-	print(read[0])
 	return render_template('announcement.html', title= announcement.title, announcement = announcement, read = int(read[0]))
 
 
