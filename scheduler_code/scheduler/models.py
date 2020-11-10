@@ -52,6 +52,8 @@ class Poll(db.Model):
     question = db.Column(db.Text, nullable=False)
     option1 = db.Column(db.Text, nullable=False)
     option2 = db.Column(db.Text, nullable=False)
+    option3 = db.Column(db.Text)
+    option4 = db.Column(db.Text)
     initiator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     def __repr__(self):
         return f"Poll('{self.title}', '{self.date_posted}')"

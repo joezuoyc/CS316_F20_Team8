@@ -248,7 +248,23 @@ def new_poll():
 	form = PollForm()
 	form.audience.choices = audience_groups
 	if form.validate_on_submit():
-		poll = Poll(title = form.title.data, 
+		if form.option3.data != '' and form.option4.data != '':
+			poll = Poll(title = form.title.data, 
+						author = current_user, question = form.question.data, 
+						option1 = form.option1.data, option2 = form.option2.data,
+						option3 = form.option3.data, option4 = form.option4.data)
+		elif form.option3.data == '' and form.option4.data != '':
+			poll = Poll(title = form.title.data, 
+						author = current_user, question = form.question.data, 
+						option1 = form.option1.data, option2 = form.option2.data,
+						option4 = form.option4.data)
+		elif form.option3.data != '' and form.option4.data == '':
+			poll = Poll(title = form.title.data, 
+						author = current_user, question = form.question.data, 
+						option1 = form.option1.data, option2 = form.option2.data,
+						option3 = form.option3.data)
+		else:
+			poll = Poll(title = form.title.data, 
 						author = current_user, question = form.question.data, 
 						option1 = form.option1.data, option2 = form.option2.data)
 		db.session.add(poll)
@@ -300,8 +316,14 @@ def poll(poll_id):
 	option1 = poll.option1
 	option2 = poll.option2
 	form.choice.choices = [(option1, option1), (option2, option2)]
+	if poll.option3 is not None:
+		option3 = poll.option3
+		form.choice.choices.append((option3, option3))
+	if poll.option4 is not None:
+		option4 = poll.option4
+		form.choice.choices.append((option4, option4))
 	if form.validate_on_submit():
-		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=','.join(form.choice.data))
+		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=form.choice.data)
 		db.session.add(poll_res)
 		db.session.commit()
 		flash('Your response has been submmitted', 'success')

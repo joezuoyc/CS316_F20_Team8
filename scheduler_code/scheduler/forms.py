@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import widgets, StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField,SelectMultipleField
+from wtforms import widgets, StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField,SelectMultipleField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 import email_validator
 from scheduler.models import User
@@ -108,13 +108,15 @@ class PollForm(FlaskForm):
 	question = StringField('Your question for the poll', validators = [DataRequired()])
 	option1 = StringField('Option 1', validators = [DataRequired()])
 	option2 = StringField('Option 2', validators = [DataRequired()])
+	option3 = StringField('Option 3 (Optional)')
+	option4 = StringField('Option 4 (Optional)')
 	submit = SubmitField('Post')
 	audience = MultiCheckboxField('What are you sending this to?')
 
 class PollResponseForm(FlaskForm):
 	title = StringField('Title of the poll', validators = [DataRequired()])
 	question = StringField('Question for the poll', validators = [DataRequired()])
-	choice = MultiCheckboxField('What is your choice?')
+	choice = RadioField('What is your choice?')
 	submit = SubmitField('Submit')
 
 class PollResultForm(FlaskForm):

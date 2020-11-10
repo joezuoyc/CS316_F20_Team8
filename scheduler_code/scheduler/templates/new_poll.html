@@ -64,6 +64,34 @@
                 </div>
 
                 <div class="form-group">
+                    {{ form.option3.label(class="form-control-label") }}
+                    {% if form.option3.errors %}
+                        {{ form.option3(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.option3.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.option3(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.option4.label(class="form-control-label") }}
+                    {% if form.option4.errors %}
+                        {{ form.option4(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.option4.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.option4(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
                     {{ form.audience.label(class="form-control-label") }}
                     {% if form.audience.errors %}
                         {{ form.audience(class="form-control form-control-lg is-invalid") }}
