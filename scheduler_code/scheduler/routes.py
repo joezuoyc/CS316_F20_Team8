@@ -20,13 +20,13 @@ def home():
 def main():
 	page = request.args.get('page', 1, type = int)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id and Announcement_recipient.read == 0)
+	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id).filter(Announcement_recipient.read == 0)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).limit(3)
 	task_ids = []
-	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id and Task_recipient.completed == 0)
+	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id).filter(Task_recipient.completed == 0)
 	tasks = Task.query.filter(Task.id.in_(task_ids)).order_by(desc(Task.date_posted)).limit(3)
 	poll_ids = []
-	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id and Poll_recipient.completed == 0)
+	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id).filter(Poll_recipient.completed == 0)
 	polls = Poll.query.filter(Poll.id.in_(poll_ids)).order_by(desc(Poll.date_posted)).limit(3)
 	return render_template('main.html', announcements =announcements, tasks = tasks, polls = polls,title = 'Main')
 
@@ -208,7 +208,7 @@ def new_announcement():
 @app.route("/announcements/<announcement_id>")
 def announcement(announcement_id):
 	announcement = Announcement.query.get_or_404(announcement_id)
-	read = db.session.query(Announcement_recipient.read).filter(Announcement_recipient.announcement_id == announcement_id and Announcement_recipient.recipient == current_user.id).first()
+	read = db.session.query(Announcement_recipient.read).filter(Announcement_recipient.announcement_id == announcement_id).filter(Announcement_recipient.recipient == current_user.id).first()
 	return render_template('announcement.html', title= announcement.title, announcement = announcement, read = int(read[0]))
 
 
@@ -248,7 +248,7 @@ def delete_announcement(announcement_id):
 @app.route("/announcements/<int:announcement_id>/mark", methods=['GET','POST'])
 @login_required
 def mark_announcement(announcement_id):
-	ann_rec = db.session.query(Announcement_recipient).filter(Announcement_recipient.announcement_id == announcement_id and Announcement_recipient.recipient == current_user.id).first()
+	ann_rec = db.session.query(Announcement_recipient).filter(Announcement_recipient.announcement_id == announcement_id).filter(Announcement_recipient.recipient == current_user.id).first()
 	r_val = 1- ann_rec.read
 	ann_rec.read = r_val
 	db.session.commit()
@@ -346,11 +346,11 @@ def new_poll():
 @login_required
 def poll(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
-	userid = current_user.id
-	duplicate = Poll_response.query.filter(Poll_response.poll_id == poll_id and Poll_response.recipient == userid)
-	completed = (duplicate.first() is not None)
+	duplicate = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id).filter(Poll_recipient.recipient == current_user.id).first()
 	
-	if completed:
+	
+	if duplicate.completed == 1:
+		print(duplicate)
 		result_form = PollResultForm(title=poll.title)
 		flash("You have submmitted to this poll already.", 'warning')
 		return render_template('poll.html', poll = poll, form = result_form, poll_id=poll_id, completed = True)
@@ -368,7 +368,7 @@ def poll(poll_id):
 	if form.validate_on_submit():
 		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=form.choice.data)
 		db.session.add(poll_res)
-		poll_rec = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id and Poll_recipient.recipient == current_user.id).first()
+		poll_rec = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id).filter(Poll_recipient.recipient == current_user.id).first()
 		poll_rec.completed = 1
 		db.session.commit()
 		flash('Your response has been submmitted', 'success')
@@ -467,13 +467,13 @@ def new_task():
 @app.route("/tasks/<task_id>")
 def task(task_id):
 	task = Task.query.get_or_404(task_id)
-	completed = db.session.query(Task_recipient.completed).filter(Task_recipient.task_id == task_id and task_recipient.recipient == current_user.id).first()
+	completed = db.session.query(Task_recipient.completed).filter(Task_recipient.task_id == task_id).filter(task_recipient.recipient == current_user.id).first()
 	return render_template('task.html', title= task.title, task = task,completed = int(completed[0]))
 
 @app.route("/tasks/<int:task_id>/mark", methods=['GET','POST'])
 @login_required
 def mark_task(task_id):
-	task_rec = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id and Task_recipient.recipient == current_user.id).first()
+	task_rec = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id).filter(Task_recipient.recipient == current_user.id).first()
 	task_rec.completed = 1- task_rec.completed
 	db.session.commit()
 	if task_rec.completed == 1:
