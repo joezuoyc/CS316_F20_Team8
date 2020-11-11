@@ -306,7 +306,7 @@ def new_poll():
 					db.session.add(poll_rec)
 					db.session.commit()
 				except exc.IntegrityError as e:
-					de.session.rollback()
+					db.session.rollback()
 
 		else:
 			if 'Managers' in audi_groups:
@@ -372,9 +372,9 @@ def poll(poll_id):
 		poll_rec.completed = 1
 		db.session.commit()
 		flash('Your response has been submmitted', 'success')
-		return redirect(url_for('main'))
+		return redirect(url_for('poll', poll_id = poll.id))
 	
-	return render_template('poll.html', poll = poll, form = form, title = title, completed = False)
+	return render_template('poll.html', poll = poll, form = form, completed = False)
 
 
 @app.route("/polls/<poll_id>/result")
