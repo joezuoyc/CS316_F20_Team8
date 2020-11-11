@@ -477,7 +477,7 @@ def new_task():
 @app.route("/tasks/<task_id>")
 def task(task_id):
 	task = Task.query.get_or_404(task_id)
-	completed = db.session.query(Task_recipient.completed).filter(Task_recipient.task_id == task_id).filter(task_recipient.recipient == current_user.id).first()
+	completed = db.session.query(Task_recipient.completed).filter(Task_recipient.task_id == task_id).filter(Task_recipient.recipient == current_user.id).first()
 	return render_template('task.html', title= task.title, task = task,completed = int(completed[0]))
 
 @app.route("/tasks/<int:task_id>/mark", methods=['GET','POST'])
