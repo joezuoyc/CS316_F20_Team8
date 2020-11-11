@@ -26,7 +26,7 @@ def main():
 	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id and Task_recipient.completed == 0)
 	tasks = Task.query.filter(Task.id.in_(task_ids)).order_by(desc(Task.date_posted)).limit(3)
 	poll_ids = []
-	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id)
+	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id and Poll_recipient.completed == 0)
 	polls = Poll.query.filter(Poll.id.in_(poll_ids)).order_by(desc(Poll.date_posted)).limit(3)
 	return render_template('main.html', announcements =announcements, tasks = tasks, polls = polls,title = 'Main')
 
