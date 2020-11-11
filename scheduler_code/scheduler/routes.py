@@ -20,10 +20,10 @@ def home():
 def main():
 	page = request.args.get('page', 1, type = int)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
+	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id and Announcement_recipient.read == 0)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).limit(3)
 	task_ids = []
-	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id)
+	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id and Task_recipient.completed == 0)
 	tasks = Task.query.filter(Task.id.in_(task_ids)).order_by(desc(Task.date_posted)).limit(3)
 	poll_ids = []
 	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id)
@@ -127,7 +127,7 @@ def all_announcements():
 	#announcements = Announcement.query.paginate(per_page = 5)
 	ann_ids = []
 	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
-	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).paginate(per_page = 5)
+	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
 
@@ -345,29 +345,6 @@ def new_poll():
 @app.route("/polls/<poll_id>", methods=['GET', 'POST'])
 @login_required
 def poll(poll_id):
-
-	# poll = Poll.query.get_or_404(poll_id)
-	# userid = current_user.id
-	# duplicate = Poll_response.query.filter(Poll_response.poll_id == poll_id and Poll_response.recipient == userid)
-	# if duplicate.first() is not None:
-	# 	flash("You have submmitted to this poll already.", 'warning')
-	# form = PollResponseForm(title=poll.title, question=poll.question)
-	# option1 = poll.option1
-	# option2 = poll.option2
-	# form.choice.choices = [(option1, option1), (option2, option2)]
-	# if poll.option3 is not None:
-	# 	option3 = poll.option3
-	# 	form.choice.choices.append((option3, option3))
-	# if poll.option4 is not None:
-	# 	option4 = poll.option4
-	# 	form.choice.choices.append((option4, option4))
-	# if form.validate_on_submit():
-	# 	poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=form.choice.data)
-	# 	db.session.add(poll_res)
-	# 	db.session.commit()
-	# 	flash('Your response has been submmitted', 'success')
-	# 	return redirect(url_for('main'))
-	# return render_template('poll.html', form = form, poll_id=poll_id, poll = poll)	
 	poll = Poll.query.get_or_404(poll_id)
 	userid = current_user.id
 	duplicate = Poll_response.query.filter(Poll_response.poll_id == poll_id and Poll_response.recipient == userid)
@@ -391,6 +368,8 @@ def poll(poll_id):
 	if form.validate_on_submit():
 		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=form.choice.data)
 		db.session.add(poll_res)
+		poll_rec = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id and Poll_recipient.recipient == current_user.id).first()
+		poll_rec.completed = 1
 		db.session.commit()
 		flash('Your response has been submmitted', 'success')
 		return redirect(url_for('main'))
@@ -413,7 +392,7 @@ def all_polls():
 	#polls = Poll.query.paginate(per_page = 5)
 	poll_ids = []
 	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id)
-	polls = Poll.query.filter(Poll.id.in_(poll_ids)).paginate(per_page = 5)
+	polls = Poll.query.filter(Poll.id.in_(poll_ids)).order_by(desc(Poll.date_posted)).paginate(per_page = 5)
 	return render_template('all_polls.html', polls =polls, title = 'All polls')
 
 @app.route("/polls/<int:poll_id>/delete", methods=['POST'])
@@ -434,7 +413,7 @@ def all_tasks():
 	#tasks = Task.query.paginate(per_page = 5)
 	task_ids = []
 	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id)
-	tasks = Task.query.filter(Task.id.in_(task_ids)).paginate(per_page = 5)
+	tasks = Task.query.filter(Task.id.in_(task_ids)).order_by(desc(Task.date_posted)).paginate(per_page = 5)
 	return render_template('all_tasks.html', tasks =tasks, title = 'All tasks')
 
 
