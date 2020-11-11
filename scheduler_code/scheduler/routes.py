@@ -8,7 +8,7 @@ import secrets
 import os
 from PIL import Image
 import re
-from sqlalchemy import exc
+from sqlalchemy import exc, desc
 
 
 
@@ -20,14 +20,14 @@ def home():
 def main():
 	page = request.args.get('page', 1, type = int)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
-	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).limit(3)
+	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id and Announcement_recipient.read == 0)
+	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).limit(3)
 	task_ids = []
-	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id)
-	tasks = Task.query.filter(Task.id.in_(task_ids)).limit(3)
+	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id and Task_recipient.completed == 0)
+	tasks = Task.query.filter(Task.id.in_(task_ids)).order_by(desc(Task.date_posted)).limit(3)
 	poll_ids = []
-	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id)
-	polls = Poll.query.filter(Poll.id.in_(poll_ids)).limit(3)
+	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id and Poll_recipient.completed == 0)
+	polls = Poll.query.filter(Poll.id.in_(poll_ids)).order_by(desc(Poll.date_posted)).limit(3)
 	return render_template('main.html', announcements =announcements, tasks = tasks, polls = polls,title = 'Main')
 
 
@@ -127,7 +127,7 @@ def all_announcements():
 	#announcements = Announcement.query.paginate(per_page = 5)
 	ann_ids = []
 	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
-	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).paginate(per_page = 5)
+	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
 
@@ -291,6 +291,9 @@ def new_poll():
 		db.session.commit()
 
 		poll_id = db.session.query(Poll).order_by(Poll.id.desc()).first().id
+		poll_rec = Poll_recipient(poll_id = poll_id, recipient = current_user.id)
+		db.session.add(poll_rec)
+		db.session.commit()
 
 		audi_groups = form.audience.data
 		
@@ -298,27 +301,42 @@ def new_poll():
 		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
 			all_users = User.query.all()
 			for user in all_users:
-				poll_rec = Poll_recipient(poll_id = poll_id, recipient = user.id)
-				db.session.add(poll_rec)
-			db.session.commit()
+				try:
+					poll_rec = Poll_recipient(poll_id = poll_id, recipient = user.id)
+					db.session.add(poll_rec)
+					db.session.commit()
+				except exc.IntegrityError as e:
+					db.session.rollback()
 
 		else:
 			if 'Managers' in audi_groups:
 				managers = User.query.filter(User.is_manager)
 				for man in managers:
-					poll_rec = Poll_recipient(poll_id = poll_id, recipient = man.id)
-					db.session.add(poll_rec)
+					try:
+						poll_rec = Poll_recipient(poll_id = poll_id, recipient = man.id)
+						db.session.add(poll_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						de.session.rollback()
 			if 'Employees' in audi_groups:
 				employees = User.query.filter(User.is_manager == False)
 				for emp in employees:
-					poll_rec = Poll_recipient(poll_id = poll_id, recipient = emp.id)
-					db.session.add(poll_rec)
+					try:
+						poll_rec = Poll_recipient(poll_id = poll_id, recipient = emp.id)
+						db.session.add(poll_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						de.session.rollback()
 			for dept in departments:
 				dept_members = User.query.filter(User.dept == dept)
 				for mem in dept_members:
-					task_rec = Poll_recipient(poll_id = poll_id, recipient = mem.id)
-					db.session.add(poll_rec)
-			db.session.commit()
+					try:
+						task_rec = Poll_recipient(poll_id = poll_id, recipient = mem.id)
+						db.session.add(poll_rec)
+						db.session.commit()
+						db.session.commit()
+					except exc.IntegrityError as e:
+						de.session.rollback()
 
 		flash('Your poll has been created', 'success')
 		return redirect(url_for('main'))
@@ -330,8 +348,13 @@ def poll(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
 	userid = current_user.id
 	duplicate = Poll_response.query.filter(Poll_response.poll_id == poll_id and Poll_response.recipient == userid)
-	if duplicate.first() is not None:
+	completed = (duplicate.first() is not None)
+	
+	if completed:
+		result_form = PollResultForm(title=poll.title)
 		flash("You have submmitted to this poll already.", 'warning')
+		return render_template('poll.html', poll = poll, form = result_form, poll_id=poll_id, completed = True)
+
 	form = PollResponseForm(title=poll.title, question=poll.question)
 	option1 = poll.option1
 	option2 = poll.option2
@@ -345,10 +368,13 @@ def poll(poll_id):
 	if form.validate_on_submit():
 		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=form.choice.data)
 		db.session.add(poll_res)
+		poll_rec = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id and Poll_recipient.recipient == current_user.id).first()
+		poll_rec.completed = 1
 		db.session.commit()
 		flash('Your response has been submmitted', 'success')
-		return redirect(url_for('main'))
-	return render_template('poll.html', form = form, poll_id=poll_id)
+		return redirect(url_for('poll', poll_id = poll.id))
+	
+	return render_template('poll.html', poll = poll, form = form, completed = False)
 
 
 @app.route("/polls/<poll_id>/result")
@@ -366,7 +392,7 @@ def all_polls():
 	#polls = Poll.query.paginate(per_page = 5)
 	poll_ids = []
 	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id)
-	polls = Poll.query.filter(Poll.id.in_(poll_ids)).paginate(per_page = 5)
+	polls = Poll.query.filter(Poll.id.in_(poll_ids)).order_by(desc(Poll.date_posted)).paginate(per_page = 5)
 	return render_template('all_polls.html', polls =polls, title = 'All polls')
 
 @app.route("/polls/<int:poll_id>/delete", methods=['POST'])
@@ -387,7 +413,7 @@ def all_tasks():
 	#tasks = Task.query.paginate(per_page = 5)
 	task_ids = []
 	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id)
-	tasks = Task.query.filter(Task.id.in_(task_ids)).paginate(per_page = 5)
+	tasks = Task.query.filter(Task.id.in_(task_ids)).order_by(desc(Task.date_posted)).paginate(per_page = 5)
 	return render_template('all_tasks.html', tasks =tasks, title = 'All tasks')
 
 
@@ -411,6 +437,9 @@ def new_task():
 		db.session.commit()
 
 		task_id = db.session.query(Task).order_by(Task.id.desc()).first().id
+		task_rec = Task_recipient(task_id = task_id, recipient = current_user.id)
+		db.session.add(task_rec)
+		db.session.commit()
 
 		assignees = []
 		for assignee in [form.assignee1, form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
@@ -421,8 +450,12 @@ def new_task():
 
 		for userid in assignees:
 			task_rec = Task_recipient(task_id = task_id, recipient = userid)
-			db.session.add(task_rec)
-		db.session.commit()
+			try:
+				db.session.add(task_rec)
+				db.session.commit()
+			except exc.IntegrityError as e:
+				db.session.rollback()
+		
 
 
 
@@ -434,7 +467,21 @@ def new_task():
 @app.route("/tasks/<task_id>")
 def task(task_id):
 	task = Task.query.get_or_404(task_id)
-	return render_template('task.html', title= task.title, task = task)
+	completed = db.session.query(Task_recipient.completed).filter(Task_recipient.task_id == task_id and task_recipient.recipient == current_user.id).first()
+	return render_template('task.html', title= task.title, task = task,completed = int(completed[0]))
+
+@app.route("/tasks/<int:task_id>/mark", methods=['GET','POST'])
+@login_required
+def mark_task(task_id):
+	task_rec = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id and Task_recipient.recipient == current_user.id).first()
+	task_rec.completed = 1- task_rec.completed
+	db.session.commit()
+	if task_rec.completed == 1:
+		flash('You have mark this task as completed!', 'success')
+	else:
+		flash('You have mark this task as not completed!', 'success')
+	return redirect(url_for('task', task_id = task_id))
+
 
 
 # Update announcement content

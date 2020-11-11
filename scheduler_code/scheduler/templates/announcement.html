@@ -22,11 +22,13 @@
         </div>
 
         {% else %}
+        <div>
          {% if read == 0 %}
           <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#readModal">Mark as read</button>
           {% else %}
           <button type="button" class="btn btn-secondary btn-sm m-1" data-toggle="modal" data-target="#unreadModal">Mark as unread</button>
       {% endif %}       
+    </div>
         {% endif %}
       </div>
       <h2 class = "article-title">{{ announcement.title }}</h2>

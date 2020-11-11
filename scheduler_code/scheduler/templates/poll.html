@@ -5,21 +5,36 @@
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-            <h2 class = "article-title">{{ form.title }}</h2>
-            <h3 class = "article-title">{{ form.question }}</h3>
+            <div class="article-metadata">
 
-            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+            <a class="mr-2" href="#">{{ poll.author.username }}</a>
+            <small class="text-muted">{{poll.date_posted.strftime('%m-%d-%Y') }}</small>
 
+            {% if poll.author == current_user %}
+              <div>
+              <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+              </div>
+            {% endif %}
+
+          </div>
+
+
+          <small class="text-muted">{{ poll.title }}</small>
+
+          <h3 class = "article-title">{{ poll.question }}</h3>
+            {% if completed %}
+            <h5> Poll result </h5>
+            {% else %}
             <div class="form-group">
-                    
+  
             {{ form.choice(class="form-check") }} 
-                   
-            </div>
+              <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>                 
+            </div>           
+            {% endif %}
 
             </fieldset>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
-            </div>
         </form>
 </div>
 
@@ -35,7 +50,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form action="{{ url_for('delete_poll',poll_id=poll_id) }}" method="POST">
+          <form action="{{ url_for('delete_poll',poll_id=poll.id) }}" method="POST">
             <input class="btn btn-danger" type="submit" value="Delete">
           </form>
         </div>
