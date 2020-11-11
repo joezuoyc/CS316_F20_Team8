@@ -8,7 +8,7 @@ import secrets
 import os
 from PIL import Image
 import re
-from sqlalchemy import exc, desc
+from sqlalchemy import exc, desc, text
 
 
 
@@ -372,7 +372,7 @@ def poll(poll_id):
 		poll_rec.completed = 1
 		db.session.commit()
 		flash('Your response has been submmitted', 'success')
-		return redirect(url_for('poll', poll_id = poll.id))
+		return redirect(url_for('poll_result', poll_id = poll.id))
 	
 	return render_template('poll.html', poll = poll, form = form, completed = False)
 
@@ -381,8 +381,10 @@ def poll(poll_id):
 @login_required
 def poll_result(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
-	form = PollResultForm(title=poll.title)
-	return render_template('poll_result.html', form=form)
+	#form = PollResultForm(title=poll.title)
+	poll_ids = db.session.query(Poll_response.poll_id).filter(Poll_response.poll_id == poll_id)
+	poll_results = Poll_response.query.filter(Poll_response.poll_id.in_(poll_ids))
+	return render_template('poll_result.html', poll=poll, poll_results=poll_results)
 	
 
 

@@ -2,7 +2,14 @@
 
 {% block content %}
 
-<h1> Poll result </h1>
+<h5><a class="article-title">{{ poll.title }}</a></h5>
 
-{{ form.title }}
+{% for poll_result in poll_results %}
+        <article class="media content-section">
+          <div class="media-body">
+            <p class="article-content">{{ poll_result.recipient, poll_result.choice }}</p>
+          </div>
+        </article>
+  {% endfor  %} 
+
 {% endblock content  %}
