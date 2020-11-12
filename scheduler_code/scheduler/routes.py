@@ -317,7 +317,7 @@ def new_poll():
 						db.session.add(poll_rec)
 						db.session.commit()
 					except exc.IntegrityError as e:
-						de.session.rollback()
+						db.session.rollback()
 			if 'Employees' in audi_groups:
 				employees = User.query.filter(User.is_manager == False)
 				for emp in employees:
@@ -326,7 +326,7 @@ def new_poll():
 						db.session.add(poll_rec)
 						db.session.commit()
 					except exc.IntegrityError as e:
-						de.session.rollback()
+						db.session.rollback()
 			for dept in departments:
 				dept_members = User.query.filter(User.dept == dept)
 				for mem in dept_members:
@@ -336,7 +336,7 @@ def new_poll():
 						db.session.commit()
 						db.session.commit()
 					except exc.IntegrityError as e:
-						de.session.rollback()
+						db.session.rollback()
 
 		flash('Your poll has been created', 'success')
 		return redirect(url_for('main'))
@@ -382,17 +382,24 @@ def poll(poll_id):
 def poll_result(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
 	#form = PollResultForm(title=poll.title,question=poll.question,option1_count=0,option2_count=0)
-	count_op1 = 0
-	count_op2 = 0
+	count_op3 = -1
+	count_op4 = -1
 	poll_ids = db.session.query(Poll_response.poll_id).filter(Poll_response.poll_id == poll_id)
 	poll_results = Poll_response.query.filter(Poll_response.poll_id.in_(poll_ids))
-	for poll_result in poll_results:
-		if poll_result.choice == poll.option1:
-			count_op1 +=1
-		elif poll_result.choice == poll.option2:
-			count_op2 +=1
-	percentage_op1 = count_op1/(count_op1+count_op2)
-	return render_template('poll_result.html', poll=poll, poll_results=poll_results, count_op2=count_op2, count_op1=count_op1,percentage_op1=percentage_op1)
+	# for poll_result in poll_results:
+	# 	if poll_result.choice == poll.option1:
+	# 		count_op1 +=1
+	# 	elif poll_result.choice == poll.option2:
+	# 		count_op2 +=1
+	# percentage_op1 = count_op1/(count_op1+count_op2)
+	count_op1 = poll_results.filter(Poll_response.choice == poll.option1).count()
+	count_op2 = poll_results.filter(Poll_response.choice == poll.option2).count()
+	if poll.option3 is not None:
+		count_op3 = poll_results.filter(Poll_response.choice == poll.option3).count()
+	if poll.option4 is not None:
+		count_op4 = poll_results.filter(Poll_response.choice == poll.option4).count()
+	return render_template('poll_result.html', poll=poll, poll_results=poll_results, 
+		count_op2=count_op2, count_op1=count_op1, count_op3=count_op3, count_op4=count_op4)
 	
 
 

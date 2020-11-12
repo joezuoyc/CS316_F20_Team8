@@ -8,20 +8,15 @@
     	<div class="article-metadata">
     		<h6><a class="article-title">View result statistics</a></h6>
     	</div>
-			<h6><a class="article-title">The number of people who picked option 1 is: {{count_op1}} ({{ percentage_op1}})</a></h6>
-			<h6><a class="article-title">The number of people who picked option 2 is: {{count_op2}} ({{1-percentage_op1}})</a></h6>
+			<h6><a class="article-title">The number of people who picked {{poll.option1}} is: {{count_op1}}</a></h6>
+			<h6><a class="article-title">The number of people who picked {{poll.option2}} is: {{count_op2}}</a></h6>
+      {% if count_op3 != -1 %}
+        <h6><a class="article-title">The number of people who picked {{poll.option3}} is: {{count_op3}}</a></h6>
+      {% endif %}
+      {% if count_op4 != -1 %}
+        <h6><a class="article-title">The number of people who picked {{poll.option4}} is: {{count_op4}}</a></h6>
+      {% endif %}
 	</div>
 </article>
-
-{% for poll_result in poll_results %}
-        <article class="media content-section">
-          <div class="media-body">
-          	<div class="article-metadata">
-          	<h6><a class="article-title">View the full response record (user id, choice):</a></h6>
-          	</div>
-            <p class="article-content">{{ poll_result.recipient, poll_result.choice }}</p>
-          </div>
-        </article>
-  {% endfor  %} 
 
 {% endblock content  %}
