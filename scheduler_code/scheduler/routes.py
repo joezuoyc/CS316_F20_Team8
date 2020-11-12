@@ -351,7 +351,6 @@ def poll(poll_id):
 	
 	if duplicate.completed == 1:
 		print(duplicate)
-		#result_form = PollResultForm(title=poll.title)
 		flash("You have submmitted to this poll already.", 'warning')
 		return redirect(url_for('poll_result', poll_id = poll.id))
 
@@ -380,26 +379,20 @@ def poll(poll_id):
 @login_required
 def poll_result(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
-	#form = PollResultForm(title=poll.title,question=poll.question,option1_count=0,option2_count=0)
-  responded = 0
+	responded = 0
 	count_op3 = -1
 	count_op4 = -1
-	poll_ids = db.session.query(Poll_response.poll_id).filter(Poll_response.poll_id == poll_id)
-	poll_results = Poll_response.query.filter(Poll_response.poll_id.in_(poll_ids))
+	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.poll_id == poll_id)
+	poll_results = Poll_recipient.query.filter(Poll_recipient.poll_id.in_(poll_ids))
 	for poll_result in poll_results: 
-    if poll_result.choice != 'Poll unfinished':
-      responded += 1
-	# 	if poll_result.choice == poll.option1:
-	# 		count_op1 +=1
-	# 	elif poll_result.choice == poll.option2:
-	# 		count_op2 +=1
-	# percentage_op1 = count_op1/(count_op1+count_op2)
-	count_op1 = poll_results.filter(Poll_response.choice == poll.option1).count()
-	count_op2 = poll_results.filter(Poll_response.choice == poll.option2).count()
+		if poll_result.choice != 'Poll unfinished':
+			responded += 1
+	count_op1 = poll_results.filter(Poll_recipient.choice == poll.option1).count()
+	count_op2 = poll_results.filter(Poll_recipient.choice == poll.option2).count()
 	if poll.option3 is not None:
-		count_op3 = poll_results.filter(Poll_response.choice == poll.option3).count()
+		count_op3 = poll_results.filter(Poll_recipient.choice == poll.option3).count()
 	if poll.option4 is not None:
-		count_op4 = poll_results.filter(Poll_response.choice == poll.option4).count()
+		count_op4 = poll_results.filter(Poll_recipient.choice == poll.option4).count()
 	return render_template('poll_result.html', poll=poll, poll_results=poll_results, 
 		count_op2=count_op2, count_op1=count_op1, count_op3=count_op3, count_op4=count_op4,responded=responded)
 	
