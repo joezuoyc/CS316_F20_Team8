@@ -29,7 +29,7 @@ class RegistrationForm(FlaskForm):
 	password = PasswordField('Password', validators = [DataRequired()] )
 	confirm_password = PasswordField('Confirm Password', 
 					validators =[DataRequired(), EqualTo('password')])
-	submit = SubmitField('Signup')
+	submit = SubmitField('Sign up')
 
 
 	def validate_username(self, username):
@@ -48,7 +48,7 @@ class LoginForm(FlaskForm):
 	email = StringField('Email', validators = 
 					[DataRequired(), Email() ])
 	password = PasswordField('Password', validators = [DataRequired()] )
-	remember = BooleanField('remeber me')
+	remember = BooleanField('remember me')
 	submit = SubmitField('Login')
 
 
@@ -119,9 +119,4 @@ class PollResponseForm(FlaskForm):
 	choice = RadioField('What is your choice?')
 	submit = SubmitField('Submit')
 
-class PollResultForm(FlaskForm):
-	title = StringField('Title of the poll', validators = [DataRequired()])
-	question = StringField('Question for the poll', validators = [DataRequired()])
-	option1_count = IntegerField(0)
-	option2_count = IntegerField(0)
 
