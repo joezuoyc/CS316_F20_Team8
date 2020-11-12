@@ -114,8 +114,6 @@ class PollForm(FlaskForm):
 	audience = MultiCheckboxField('What are you sending this to?')
 
 class PollResponseForm(FlaskForm):
-	# title = StringField('Title of the poll', validators = [DataRequired()])
-	# question = StringField('Question for the poll', validators = [DataRequired()])
 	choice = RadioField('What is your choice?')
 	submit = SubmitField('Submit')
 
