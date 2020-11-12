@@ -1,8 +1,8 @@
 
 from flask import render_template, url_for, flash, redirect, request, abort
 from scheduler import app, db, bcrypt
-from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm, PollResponseForm, PollResultForm
-from scheduler.models import User, Announcement, Task, Announcement_recipient, Poll, Poll_recipient, Task_recipient, Poll_response
+from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm, PollResponseForm
+from scheduler.models import User, Announcement, Task, Announcement_recipient, Poll, Poll_recipient, Task_recipient
 from flask_login import login_user, current_user, logout_user, login_required
 import secrets
 import os
@@ -351,7 +351,7 @@ def poll(poll_id):
 	
 	if duplicate.completed == 1:
 		print(duplicate)
-		result_form = PollResultForm(title=poll.title)
+		#result_form = PollResultForm(title=poll.title)
 		flash("You have submmitted to this poll already.", 'warning')
 		return redirect(url_for('poll_result', poll_id = poll.id))
 
@@ -366,10 +366,9 @@ def poll(poll_id):
 		option4 = poll.option4
 		form.choice.choices.append((option4, option4))
 	if form.validate_on_submit():
-		poll_res = Poll_response(poll_id = poll_id, recipient=current_user.id, choice=form.choice.data)
-		db.session.add(poll_res)
-		poll_rec = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id).filter(Poll_recipient.recipient == current_user.id).first()
-		poll_rec.completed = 1
+		poll_res = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id).filter(Poll_recipient.recipient == current_user.id).first()
+		poll_res.completed = 1
+		poll_res.choice = form.choice.data
 		db.session.commit()
 		flash('Your response has been submmitted', 'success')
 		return redirect(url_for('poll_result', poll_id = poll.id))
@@ -382,11 +381,14 @@ def poll(poll_id):
 def poll_result(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
 	#form = PollResultForm(title=poll.title,question=poll.question,option1_count=0,option2_count=0)
+  responded = 0
 	count_op3 = -1
 	count_op4 = -1
 	poll_ids = db.session.query(Poll_response.poll_id).filter(Poll_response.poll_id == poll_id)
 	poll_results = Poll_response.query.filter(Poll_response.poll_id.in_(poll_ids))
-	# for poll_result in poll_results:
+	for poll_result in poll_results: 
+    if poll_result.choice != 'Poll unfinished':
+      responded += 1
 	# 	if poll_result.choice == poll.option1:
 	# 		count_op1 +=1
 	# 	elif poll_result.choice == poll.option2:
@@ -399,9 +401,8 @@ def poll_result(poll_id):
 	if poll.option4 is not None:
 		count_op4 = poll_results.filter(Poll_response.choice == poll.option4).count()
 	return render_template('poll_result.html', poll=poll, poll_results=poll_results, 
-		count_op2=count_op2, count_op1=count_op1, count_op3=count_op3, count_op4=count_op4)
+		count_op2=count_op2, count_op1=count_op1, count_op3=count_op3, count_op4=count_op4,responded=responded)
 	
-
 
 @app.route("/all_polls", methods=['GET', 'POST'])
 def all_polls():

@@ -58,15 +58,12 @@ class Poll(db.Model):
     def __repr__(self):
         return f"Poll('{self.title}', '{self.date_posted}')"
 
-class Poll_response(db.Model):
-    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable = False, primary_key = True)
-    recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
-    choice = db.Column(db.Text, nullable=False)
 
 class Poll_recipient(db.Model):
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable = False, primary_key = True)
     recipient = db.Column(db.Integer, db.ForeignKey('user.id'),nullable = False,primary_key = True)
     completed = db.Column(db.Integer, default = 0, nullable = False)
+    choice = db.Column(db.Text, default = 'Poll unfinished', nullable=False)
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)

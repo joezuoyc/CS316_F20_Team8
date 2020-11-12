@@ -2,21 +2,34 @@
 
 {% block content %}
 
-<h4><a class="article-title">You are viewing the result for: {{ poll.title }}</a></h4>
+<h3><a class="article-title">You are viewing the result for: {{ poll.title }}</a></h3>
 <article class="media content-section">
     <div class="media-body">
     	<div class="article-metadata">
-    		<h6><a class="article-title">View result statistics</a></h6>
+    		<h5><a class="article-title">View result statistics</a></h5>
     	</div>
-			<h6><a class="article-title">The number of people who picked {{poll.option1}} is: {{count_op1}}</a></h6>
-			<h6><a class="article-title">The number of people who picked {{poll.option2}} is: {{count_op2}}</a></h6>
+      <h6><a class="article-title"> {{responded}} recipients have responded to this poll</a></h6>
+			<h6><a class="article-title">The number of people who choose {{poll.option1}} is: {{count_op1}} </a></h6>
+			<h6><a class="article-title"> The number of people who choose {{poll.option2}} is: {{count_op2}}</a></h6>
       {% if count_op3 != -1 %}
-        <h6><a class="article-title">The number of people who picked {{poll.option3}} is: {{count_op3}}</a></h6>
+       <h6><a class="article-title">The number of people who picked {{poll.option3}} is: {{count_op3}}</a></h6>
       {% endif %}
       {% if count_op4 != -1 %}
         <h6><a class="article-title">The number of people who picked {{poll.option4}} is: {{count_op4}}</a></h6>
       {% endif %}
 	</div>
 </article>
+
+        <article class="media content-section">
+          <div class="media-body">
+          	<div class="article-metadata">
+          	<h5><a class="article-title">View the full response record (user id, choice):</a></h5>
+          	</div>
+            {% for poll_result in poll_results %}
+            <p>{{ poll_result.recipient, poll_result.choice }}</p>
+            {% endfor  %} 
+          </div>
+        </article>
+
 
 {% endblock content  %}
