@@ -237,9 +237,12 @@ def update_announcement(announcement_id):
 @login_required
 def delete_announcement(announcement_id):
 	announcement = Announcement.query.get_or_404(announcement_id)
+	ann_recs = Announcement_recipient.query.filter(Announcement_recipient.announcement_id == announcement_id)
 	if announcement.author != current_user:
 		abort(403)
 	db.session.delete(announcement)
+	for ann_rec in ann_recs:
+		db.session.delete(ann_rec)
 	db.session.commit()
 	flash('Your announcement has been deleted!', 'success')
 	return redirect(url_for('main'))
@@ -410,8 +413,11 @@ def all_polls():
 @login_required
 def delete_poll(poll_id):
 	poll = Poll.query.get_or_404(poll_id)
+	poll_recs = Poll_recipient.query.filter(Poll_recipient.poll_id == poll_id)
 	if poll.author != current_user:
 		abort(403)
+	for poll_rec in poll_recs:
+		db.session.delete(poll_rec)
 	db.session.delete(poll)
 	db.session.commit()
 	flash('Your poll has been deleted!', 'success')
@@ -500,7 +506,7 @@ def mark_task(task_id):
 @login_required
 
 def update_task(task_id):
-	task = task.query.get_or_404(task_id)
+	task = Task.query.get_or_404(task_id)
 	if task.author != current_user:
 		abort(403)
 	form = TaskForm()
@@ -519,9 +525,12 @@ def update_task(task_id):
 @app.route("/tasks/<int:task_id>/delete", methods=['POST'])
 @login_required
 def delete_task(task_id):
-	task = task.query.get_or_404(task_id)
+	task = Task.query.get_or_404(task_id)
+	task_recs = Task_recipient.query.filter(Task_recipient.task_id == task_id)
 	if task.author != current_user:
 		abort(403)
+	for task_rec in task_recs:
+		db.session.delete(task_rec)
 	db.session.delete(task)
 	db.session.commit()
 	flash('Your task has been deleted!', 'success')
