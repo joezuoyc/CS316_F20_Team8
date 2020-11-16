@@ -564,16 +564,42 @@ def update_task(task_id):
 	if task.author != current_user:
 		abort(403)
 	form = TaskForm()
+	users = [(user.id, user.username) for user in User.query.all()]
+	users.sort(key=lambda x: x[1])
+	form.assignee1.choices = users
+	users_null = [(user.id, user.username) for user in User.query.all()]
+	users_null.sort(key=lambda x: x[1])
+	users_null.insert(0, (-1, ''))
+	for assignee in [form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
+		assignee.choices = users_null
+
 	if form.validate_on_submit():
 		task.title = form.title.data
 		task.content = form.content.data
 		db.session.commit()
+
+		task_rec = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id).filter(Task_recipient.recipient != current_user.id).all()
+		for rec in task_rec:
+			db.session.delete(rec)
+		db.session.commit()
+		assignees = []
+		for assignee in [form.assignee1, form.assignee2, form.assignee3, form.assignee4, form.assignee5]:
+			if assignee.data != -1 and assignee.data not in assignees:
+				assignees.append(assignee.data)
+
+		for userid in assignees:
+			task_rec = Task_recipient(task_id = task_id, recipient = userid)
+			try:
+				db.session.add(task_rec)
+				db.session.commit()
+			except exc.IntegrityError as e:
+				db.session.rollback()
 		flash('Your task content has been updated!', 'success')
 		return redirect(url_for('task',task_id = task.id))
 	elif request.method == 'GET':
 		form.title.data = task.title
 		form.content.data = task.content
-	return render_template('Task.html', title= 'Update Task' , 
+	return render_template('new_task.html', title= 'Update Task' , 
 								form = form, legend = 'Update Task')
 
 @app.route("/tasks/<int:task_id>/delete", methods=['POST'])
