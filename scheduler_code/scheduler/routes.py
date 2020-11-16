@@ -537,7 +537,9 @@ def new_task():
 def task(task_id):
 	task = Task.query.get_or_404(task_id)
 	completed = db.session.query(Task_recipient.completed).filter(Task_recipient.task_id == task_id).filter(Task_recipient.recipient == current_user.id).first()
-	return render_template('task.html', title= task.title, task = task,completed = int(completed[0]))
+	total_workers = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id).filter(Task_recipient.recipient != -1).count()
+	done_workers = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id).filter(Task_recipient.completed == 1).count()
+	return render_template('task.html', title= task.title, task = task,completed = int(completed[0]), total = total_workers, done = done_workers)
 
 @app.route("/tasks/<int:task_id>/mark", methods=['GET','POST'])
 @login_required
