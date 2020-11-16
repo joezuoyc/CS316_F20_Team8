@@ -9,11 +9,15 @@ import os
 from PIL import Image
 import re
 from sqlalchemy import exc, desc, text, or_
+from faker import Faker
+import random
+from datetime import datetime
 
 
 
 @app.route('/') # home page of the website, login here
 def home():
+
 	return render_template('home.html')
 	
 @app.route('/main') # main user page
