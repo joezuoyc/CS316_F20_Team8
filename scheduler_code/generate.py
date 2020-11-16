@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	user1 = User(id = 1, username = 'test', email = 'test@test.com', is_manager = True, dept = 'Production', password = bcrypt.generate_password_hash('test').decode('utf-8'))
 	db.session.add(user1)
 	db.session.commit()
-	num = 100
+	num = 1000
 	uid = [i for i in range(10001, 10001+num)]
 	fake = Faker(['en_US', 'en_UK'])
 	names = []
@@ -45,8 +45,13 @@ if __name__ == '__main__':
 	for i in range(num):
 	    password.append(names[i].split()[1])
 	for i in range(num):
-	    user_i = User(id = uid[i], username = names[i], email = emails[i], is_manager = is_manager[i], dept = dept[i], image_file= image_file[i], password = password[i])
-	    db.session.add(user_i)
+		try:
+			user_i = User(id = uid[i], username = names[i], email = emails[i], is_manager = is_manager[i], dept = dept[i], image_file= image_file[i], password = password[i])
+			db.session.add(user_i)
+			db.session.commit()
+		except exc.IntegrityError as e:
+			db.session.rollback()
+
 
 	aid = [i for i in range(20001, 20001+num)]
 	title = []
