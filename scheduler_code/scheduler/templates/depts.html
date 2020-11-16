@@ -4,24 +4,29 @@
 
 	<h1> Departments Page </h1>
 
-	{% for i in range(7) %}
-	<div class="card">
-		<h3 class="card-title">
-			{% if depts[i] == 'RaD' %}
+{% for i in range(7) %}
+<article class="media content-section">
+    <div class="media-body">
+    	<div class="article-metadata">
+    		<h5><a class="article-title">
+    		{% if depts[i] == 'RaD' %}
 				Research & Development
             {% elif depts[i] == 'HR' %}
                 Human Resource
             {% else %}
                 {{depts[i]}}
-            {% endif %}
-		</h3>
-		<p class="card-text">
+            {% endif %}	
+    		</a></h5>
+    	</div>
+      <h6><a class="article-title"> 
 			{% for username in belong[i] %}
-				{{username[0]}}
+				{{username[0]}},
 			{% endfor %}
-		</p>
+      </a></h6>
+			
 	</div>
-	<br>
+</article>
+
 	{% endfor %} 
 
 {% endblock content  %}
