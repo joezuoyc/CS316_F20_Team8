@@ -126,7 +126,7 @@ def all_announcements():
 	page = request.args.get('page', 1, type = int)
 	#announcements = Announcement.query.paginate(per_page = 5)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
+	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id).all()
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
@@ -225,11 +225,62 @@ def update_announcement(announcement_id):
 		announcement.title = form.title.data
 		announcement.content = form.content.data
 		db.session.commit()
+		audi_groups = form.audience.data
+		ann_id = announcement_id
+		# first we remove this announcements from all original audience
+		ann_rec = db.session.query(Announcement_recipient).filter(Announcement_recipient.announcement_id == announcement_id).filter(Announcement_recipient.recipient != current_user.id).all()
+		for p in ann_rec:
+			db.session.delete(p)
+		db.commit()
+		# loop over different scenarios
+		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
+			all_users = User.query.all()
+			for user in all_users:
+				try:
+					announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = user.id, read = 0)
+					db.session.add(announcement_rec)
+					db.session.commit()
+				except exc.IntegrityError as e:
+					db.session.rollback()
+
+			db.session.commit()
+
+		else:
+			if 'Managers' in audi_groups:
+				managers = User.query.filter(User.is_manager)
+				for man in managers:
+					try:
+						announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = man.id, read = 0)
+						db.session.add(announcement_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						db.session.rollback()
+			if 'Employees' in audi_groups:
+				employees = User.query.filter(User.is_manager == False)
+				for emp in employees:
+					try:
+						announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = emp.id,  read = 0)
+						db.session.add(announcement_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						db.session.rollback()
+			for dept in departments:
+				dept_members = User.query.filter(User.dept == dept)
+				for mem in dept_members:
+					try:
+						announcement_rec = Announcement_recipient(announcement_id = ann_id, recipient = mem.id,  read = 0)
+						db.session.add(announcement_rec)
+						db.session.commit()
+					except exc.IntegrityError as e:
+						db.session.rollback()
+
+
 		flash('Your post has been updated!', 'success')
 		return redirect(url_for('announcement',announcement_id = announcement.id))
 	elif request.method == 'GET':
 		form.title.data = announcement.title
 		form.content.data = announcement.content
+		form.audience.choices = audience_groups
 	return render_template('new_announcement.html', title= 'Update Annoucnement' , 
 								form = form, legend = 'Update Annoucnement')
 
