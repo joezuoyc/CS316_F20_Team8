@@ -7,7 +7,6 @@
 	{% for announcement in anns %}
         <h6>Announcement</h6>
         <article class="media content-section">
-<!--           <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + announcement.author.image_file) }}"> -->
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2" href="#">{{ announcement.author.username }}</a>
@@ -25,7 +24,6 @@
   {% for task in tasks %}
         <h6>Task</h6>
         <article class="media content-section">
-<!--           <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + task.author.image_file) }}"> -->
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2" href="#">{{ task.author.username }}</a>
@@ -44,7 +42,6 @@
   {% for poll in polls %}
         <h6>Poll</h6>
         <article class="media content-section">
-<!--           <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + poll.author.image_file) }}"> -->
           <div class="media-body">
             <div class="article-metadata">
               <a class="mr-2" href="#">{{ poll.author.username }}</a>
