@@ -117,4 +117,8 @@ class PollResponseForm(FlaskForm):
 	choice = RadioField('What is your choice?')
 	submit = SubmitField('Submit')
 
+class SearchForm(FlaskForm):
+	keyword = StringField('What is your search keyword?', validators = [DataRequired()])
+	target = MultiCheckboxField('What do you want to search?')
+	submit = SubmitField('Post')
 

@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h5>Here is your search results</h5>
+
+{% if anns %}
+	{% for announcement in anns %}
+        <h6>Announcement</h6>
+        <article class="media content-section">
+          <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + announcement.author.image_file) }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ announcement.author.username }}</a>
+              <small class="text-muted">{{announcement.date_posted.strftime('%m-%d-%Y') }}</small>
+            </div>
+            <h2><a class="article-title" href="{{url_for('announcement', announcement_id = announcement.id)}}">{{ announcement.title }}</a></h2>
+            <p class="article-content">{{ announcement.content }}</p>
+          </div>
+        </article>
+	{% endfor  %}	
+{% endif %}
+
+
+{% if tasks %}
+  {% for task in tasks %}
+        <h6>Task</h6>
+        <article class="media content-section">
+          <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + task.author.image_file) }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ task.author.username }}</a>
+              <small class="text-muted">{{task.date_posted.strftime('%m-%d-%Y') }}</small>
+            </div>
+            <h2><a class="article-title" href="{{url_for('task', task_id = task.id)}}">{{ task.title }}</a></h2>
+            <p class="article-content">{{ task.content }}</p>
+          </div>
+        </article>
+  {% endfor  %} 
+{% endif %}
+
+
+
+{% if polls %}
+  {% for poll in polls %}
+        <h6>Poll</h6>
+        <article class="media content-section">
+          <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + poll.author.image_file) }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ poll.author.username }}</a>
+              <small class="text-muted">{{poll.date_posted.strftime('%m-%d-%Y') }}</small>
+            </div>
+            <h2><a class="article-title" href="{{url_for('poll', poll_id = poll.id)}}">{{ poll.title }}</a></h2>
+            <p class="article-content">{{ poll.question }}</p>
+          </div>
+        </article>
+  {% endfor  %} 
+{% endif %}
+
+{% endblock content  %}

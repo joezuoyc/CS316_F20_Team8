@@ -1,14 +1,14 @@
 
 from flask import render_template, url_for, flash, redirect, request, abort
 from scheduler import app, db, bcrypt
-from scheduler.forms import RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm, PollResponseForm
+from scheduler.forms import SearchForm, RegistrationForm, LoginForm, UpdateAccountForm, AnnouncementForm, TaskForm, PollForm, PollResponseForm
 from scheduler.models import User, Announcement, Task, Announcement_recipient, Poll, Poll_recipient, Task_recipient
 from flask_login import login_user, current_user, logout_user, login_required
 import secrets
 import os
 from PIL import Image
 import re
-from sqlalchemy import exc, desc, text
+from sqlalchemy import exc, desc, text, or_
 
 
 
@@ -537,7 +537,9 @@ def new_task():
 def task(task_id):
 	task = Task.query.get_or_404(task_id)
 	completed = db.session.query(Task_recipient.completed).filter(Task_recipient.task_id == task_id).filter(Task_recipient.recipient == current_user.id).first()
-	return render_template('task.html', title= task.title, task = task,completed = int(completed[0]))
+	total_workers = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id).filter(Task_recipient.recipient != -1).count()
+	done_workers = db.session.query(Task_recipient).filter(Task_recipient.task_id == task_id).filter(Task_recipient.completed == 1).count()
+	return render_template('task.html', title= task.title, task = task,completed = int(completed[0]), total = total_workers, done = done_workers)
 
 @app.route("/tasks/<int:task_id>/mark", methods=['GET','POST'])
 @login_required
@@ -587,3 +589,38 @@ def delete_task(task_id):
 	db.session.commit()
 	flash('Your task has been deleted!', 'success')
 	return redirect(url_for('main'))
+
+search_groups = [('Announcement','Announcement'),('Task','Task'),('Poll','Poll')]
+@app.route("/search", methods=['GET', 'POST'])
+@login_required
+def search():
+	form = SearchForm()
+	form.target.choices = search_groups
+	if form.validate_on_submit():
+		search_targets = form.target.data
+		keyword = form.keyword.data
+		return redirect(url_for('search_result',keyword = keyword, search_targets = search_targets))
+	return render_template('search.html',form = form, title= 'Search What You Want')
+
+@login_required
+@app.route("/search/<string:keyword>/<string:search_targets>/result", methods=['GET', 'POST'])
+def search_result(keyword, search_targets):
+	anns, tasks, polls = None, None, None
+	if 'Announcement' in search_targets:
+		anns = Announcement.query.filter(or_(
+									Announcement.title.like("%"+keyword+"%"),
+									Announcement.content.like("%"+keyword+"%")
+									)).order_by(desc(Announcement.date_posted))
+
+	if 'Poll' in search_targets:
+		polls = Poll.query.filter(or_(
+									Poll.title.like("%"+keyword+"%"),
+									Poll.question.like("%"+keyword+"%")
+									)).order_by(desc(Poll.date_posted))
+
+	if 'Task' in search_targets:
+		tasks = Task.query.filter(or_(
+									Task.title.like("%"+keyword+"%"),
+									Task.content.like("%"+keyword+"%")
+									)).order_by(desc(Task.date_posted))
+	return render_template('search_result.html',title = 'Search Results', anns = anns, polls = polls, tasks = tasks )
