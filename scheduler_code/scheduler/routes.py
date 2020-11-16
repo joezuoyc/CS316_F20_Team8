@@ -607,19 +607,22 @@ def search():
 def search_result(keyword, search_targets):
 	anns, tasks, polls = None, None, None
 	if 'Announcement' in search_targets:
-		anns = Announcement.query.filter(or_(
+		ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
+		anns = Announcement.query.filter(Announcement.id.in_(ann_ids)).filter(or_(
 									Announcement.title.like("%"+keyword+"%"),
 									Announcement.content.like("%"+keyword+"%")
 									)).order_by(desc(Announcement.date_posted))
 
 	if 'Poll' in search_targets:
-		polls = Poll.query.filter(or_(
+		poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id)
+		polls = Poll.query.filter(Poll.id.in_(poll_ids)).filter(or_(
 									Poll.title.like("%"+keyword+"%"),
 									Poll.question.like("%"+keyword+"%")
 									)).order_by(desc(Poll.date_posted))
 
 	if 'Task' in search_targets:
-		tasks = Task.query.filter(or_(
+		task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id)
+		tasks = Task.query.filter(Task.id.in_(task_ids)).filter(or_(
 									Task.title.like("%"+keyword+"%"),
 									Task.content.like("%"+keyword+"%")
 									)).order_by(desc(Task.date_posted))
