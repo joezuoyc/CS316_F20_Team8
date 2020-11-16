@@ -126,7 +126,7 @@ def all_announcements():
 	page = request.args.get('page', 1, type = int)
 	#announcements = Announcement.query.paginate(per_page = 5)
 	ann_ids = []
-	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id).all()
+	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
@@ -221,6 +221,7 @@ def update_announcement(announcement_id):
 	if announcement.author != current_user:
 		abort(403)
 	form = AnnouncementForm()
+	form.audience.choices = audience_groups
 	if form.validate_on_submit():
 		announcement.title = form.title.data
 		announcement.content = form.content.data
@@ -231,7 +232,7 @@ def update_announcement(announcement_id):
 		ann_rec = db.session.query(Announcement_recipient).filter(Announcement_recipient.announcement_id == announcement_id).filter(Announcement_recipient.recipient != current_user.id).all()
 		for p in ann_rec:
 			db.session.delete(p)
-		db.commit()
+		db.session.commit()
 		# loop over different scenarios
 		if ('All' in audi_groups) or ('Managers' in audi_groups and 'Employees' in audi_groups):
 			all_users = User.query.all()
