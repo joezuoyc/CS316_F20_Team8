@@ -136,7 +136,7 @@ def all_announcements():
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
 
-general_groups = [('All','All users'),('Managers','All Managers'),('Employees','All Employees')]
+general_groups = [('All','All Users'),('Managers','All Managers'),('Employees','All Employees')]
 dept_groups = [				 	 ('Production', 'All Production'),
 								 ('RaD', 'All Research & Development'),
 								 ('Purchasing', 'All Purchasing'),
