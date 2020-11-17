@@ -2,10 +2,11 @@
 
 {% block content %}
 {% if current_user.is_manager %}
-<h4><a class="article-title" href="{{url_for('my_polls')}}">Click here to see all polls you have posted </a></h4>
+<h4>You have made the following polls:</h4>
 {% endif %}
+<a class="text-muted" href="{{url_for('my_polls')}}">Click here to see all polls for you </a>
 	{% for poll in polls.items %}
-        <h6>Poll</h6>
+        <h6>Your Poll</h6>
         <article class="media content-section">
           <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + poll.author.image_file) }}">
           <div class="media-body">

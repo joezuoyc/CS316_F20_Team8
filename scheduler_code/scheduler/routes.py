@@ -135,6 +135,17 @@ def all_announcements():
 	announcements = Announcement.query.filter(Announcement.id.in_(ann_ids)).order_by(desc(Announcement.date_posted)).paginate(per_page = 5)
 	return render_template('all_announcements.html', announcements =announcements, title = 'All announcements')
 
+@app.route("/my_ann", methods=['GET', 'POST'])
+def my_ann():
+	page = request.args.get('page', 1, type = int)
+	#announcements = Announcement.query.paginate(per_page = 5)
+	ann_ids = []
+	ann_ids = db.session.query(Announcement_recipient.announcement_id).filter(Announcement_recipient.recipient == current_user.id)
+	announcements = Announcement.query.filter(Announcement.user_id == current_user.id).order_by(desc(Announcement.date_posted)).paginate(per_page = 5)
+	return render_template('my_ann.html', announcements =announcements, title = 'My announcements')
+
+
+
 
 general_groups = [('All','All Users'),('Managers','All Managers'),('Employees','All Employees')]
 dept_groups = [				 	 ('Production', 'All Production'),
@@ -146,6 +157,9 @@ dept_groups = [				 	 ('Production', 'All Production'),
 								 ('Operations', 'All Operations')]
 departments = ['Managers','Employees','Production','RaD','Purchasing''Marketing','HR','Accounting','Operations']
 audience_groups = general_groups + dept_groups
+
+
+
 
 
 @app.route("/announcements/new", methods=['GET', 'POST'])
@@ -466,6 +480,18 @@ def all_polls():
 	polls = Poll.query.filter(Poll.id.in_(poll_ids)).order_by(desc(Poll.date_posted)).paginate(per_page = 5)
 	return render_template('all_polls.html', polls =polls, title = 'All polls')
 
+
+
+@app.route("/my_polls", methods=['GET', 'POST'])
+def my_polls():
+	page = request.args.get('page', 1, type = int)
+	#polls = Poll.query.paginate(per_page = 5)
+	poll_ids = []
+	poll_ids = db.session.query(Poll_recipient.poll_id).filter(Poll_recipient.recipient == current_user.id)
+	polls = Poll.query.filter(Poll.initiator_id == current_user.id).order_by(desc(Poll.date_posted)).paginate(per_page = 5)
+	return render_template('my_polls.html', polls =polls, title = 'My polls')
+
+
 @app.route("/polls/<int:poll_id>/delete", methods=['POST'])
 @login_required
 def delete_poll(poll_id):
@@ -489,6 +515,16 @@ def all_tasks():
 	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id)
 	tasks = Task.query.filter(Task.id.in_(task_ids)).order_by(desc(Task.date_posted)).paginate(per_page = 5)
 	return render_template('all_tasks.html', tasks =tasks, title = 'All tasks')
+
+
+@app.route("/my_tasks", methods=['GET', 'POST'])
+def my_tasks():
+	page = request.args.get('page', 1, type = int)
+	#tasks = Task.query.paginate(per_page = 5)
+	task_ids = []
+	task_ids = db.session.query(Task_recipient.task_id).filter(Task_recipient.recipient == current_user.id)
+	tasks = Task.query.filter(Task.user_id == current_user.id).order_by(desc(Task.date_posted)).paginate(per_page = 5)
+	return render_template('my_tasks.html', tasks =tasks, title = 'My tasks')
 
 
 @app.route("/tasks/new", methods=['GET', 'POST'])

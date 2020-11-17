@@ -1,12 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-
-{% if current_user.is_manager %}
-<h4><a class="article-title" href="{{url_for('my_ann')}}">Click here to see all announcements you have posted </a></h4>
-{% endif %}
+<h4> You have posted the following announcements</h4>
+<a class="text-muted" href="{{url_for('all_announcements')}}">Click here to see all announcements for you </a>
 	{% for announcement in announcements.items %}
-        <h6>Announcement</h6>
+        <h6>Your Announcement</h6>
         <article class="media content-section">
           <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + announcement.author.image_file) }}">
           <div class="media-body">

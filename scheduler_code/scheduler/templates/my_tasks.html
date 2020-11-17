@@ -3,10 +3,11 @@
 {% block content %}
 
 {% if current_user.is_manager %}
-<h4><a class="article-title" href="{{url_for('my_tasks')}}">Click here to see all tasks you have assigned </a></h4>
+<h4>These are the tasks you assigned</h4>
 {% endif %}
+<a class="article-title" href="{{url_for('all_tasks')}}">Click here to see all tasks for you </a>
 	{% for task in tasks.items %}
-        <h6>Task</h6>
+        <h6>Your Task</h6>
         <article class="media content-section">
         <img class = "rounded-circle article-img" src = "{{ url_for('static', filename = 'profile_pics/' + task.author.image_file) }}">
           <div class="media-body">
