@@ -301,8 +301,8 @@ def update_announcement(announcement_id):
 		form.title.data = announcement.title
 		form.content.data = announcement.content
 		form.audience.choices = audience_groups
-	return render_template('new_announcement.html', title= 'Update Annoucnement' , 
-								form = form, legend = 'Update Annoucnement')
+	return render_template('new_announcement.html', title= 'Update Announcement' , 
+								form = form, legend = 'Update Announcement')
 
 @app.route("/announcements/<int:announcement_id>/delete", methods=['POST'])
 @login_required

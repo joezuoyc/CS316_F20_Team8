@@ -3,8 +3,8 @@
 {% block content %}
 
         <article>
-        	<p style="margin-left: 2.5em;padding: 0 7em 2em 0;border-width: 2px; border-color: grey; border-style:none;"></p>
-        	<p style="margin-left: 2.5em;padding: 0 7em 2em 0;border-width: 2px; border-color: grey; border-style:none;"></p>
+        	<p style="margin-left: 5em;padding: 0 7em 2em 0;border-width: 2px; border-color: grey; border-style:none;"></p>
+        	<p style="margin-left: 5em;padding: 0 7em 2em 0;border-width: 2px; border-color: grey; border-style:none;"></p>
               <h1><center> Bring All Your Work Together.</center></h1></pre>
 
               <p style="margin-left: 2.5em;padding: 0 7em 2em 0;border-width: 2px; border-color: grey; border-style:none;"></p>
@@ -16,8 +16,11 @@
               <p style="margin-left: 2.5em;padding: 0 2em 2em 0;border-width: 2px; border-color: grey; border-style:none;"></p>
               <h4><center> Join WorkHub Today.</center></h4>
               <div>
-
+                {% if current_user.is_authenticated %}
+              <a class="nav-item nav-link" href="/main"><center> Go to Your Home Page</center></a>
+                {% else %}
               <a class="nav-item nav-link" href="/register"><center> Register as New User</center></a>
+              {% endif %}
 
           	 </div>
 
