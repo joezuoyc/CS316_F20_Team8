@@ -4,7 +4,7 @@
 {% if current_user.is_manager %}
 <h4>You have made the following polls:</h4>
 {% endif %}
-<a class="text-muted" href="{{url_for('my_polls')}}">Click here to see all polls for you </a>
+<a class="text-muted" href="{{url_for('all_polls')}}">Click here to see all polls for you </a>
 	{% for poll in polls.items %}
         <h6>Your Poll</h6>
         <article class="media content-section">
