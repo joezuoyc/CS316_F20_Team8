@@ -110,13 +110,9 @@ if __name__ == '__main__':
 	poll_recipient = []
 	for i in range(num):
 	    poll_recipient.append(random.randint(10001, 10001+num))
-	completed = []
-	for i in range(num):
-	    completed.append(random.randint(0,1))
-	choices = ['Poll unfinished', 'Yes']
 	for i in range(num):
 		try:
-			poll_rec = Poll_recipient(poll_id = pid[i], recipient = 1, completed = completed[i], choice = choices[completed[i]])
+			poll_rec = Poll_recipient(poll_id = pid[i], recipient = 1, completed = 0, choice = 'Poll unfinished')
 			db.session.add(poll_rec)
 			db.session.commit()
 		except:
