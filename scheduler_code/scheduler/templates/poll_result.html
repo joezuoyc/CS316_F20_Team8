@@ -9,13 +9,13 @@
     		<h5><a class="article-title">View result statistics</a></h5>
     	</div>
       <h6><a class="article-title"> {{responded}} recipients have responded to this poll</a></h6>
-			<h6><a class="article-title">The number of people who choose {{poll.option1}} is: {{count_op1}}, the porpotion is {{count_op1/responded}} </a></h6>
-			<h6><a class="article-title"> The number of people who choose {{poll.option2}} is: {{count_op2}}, the porpotion is {{count_op2/responded}}</a></h6>
+			<h6><a class="article-title">The number of people who choose {{poll.option1}} is: {{count_op1}} out of {{responded}} </a></h6>
+			<h6><a class="article-title"> The number of people who choose {{poll.option2}} is: {{count_op2}} out of {{responded}}</a></h6>
       {% if count_op3 != -1 %}
-       <h6><a class="article-title">The number of people who choose {{poll.option3}} is: {{count_op3}}, the porpotion is {{count_op3/responded}}</a></h6>
+       <h6><a class="article-title">The number of people who choose {{poll.option3}} is: {{count_op3}} out of {{responded}}</a></h6>
       {% endif %}
       {% if count_op4 != -1 %}
-        <h6><a class="article-title">The number of people who choose {{poll.option4}} is: {{count_op4}}, the porpotion is {{count_op4/responded}}</a></h6>
+        <h6><a class="article-title">The number of people who choose {{poll.option4}} is: {{count_op4}} outof {{responded}}</a></h6>
       {% endif %}
 	</div>
 </article>
