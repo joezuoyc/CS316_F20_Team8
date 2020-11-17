@@ -411,7 +411,7 @@ def poll(poll_id):
 	
 	if duplicate.completed == 1:
 		print(duplicate)
-		flash("You have submmitted to this poll already.", 'warning')
+		flash("You have submitted to this poll already.", 'warning')
 		return redirect(url_for('poll_result', poll_id = poll.id))
 
 	form = PollResponseForm(title=poll.title, question=poll.question)
@@ -429,7 +429,7 @@ def poll(poll_id):
 		poll_res.completed = 1
 		poll_res.choice = form.choice.data
 		db.session.commit()
-		flash('Your response has been submmitted', 'success')
+		flash('Your response has been submitted', 'success')
 		return redirect(url_for('poll_result', poll_id = poll.id))
 	
 	return render_template('poll.html', poll = poll, form = form, completed = False)
